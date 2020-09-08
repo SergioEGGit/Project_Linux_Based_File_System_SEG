@@ -42,8 +42,8 @@
             }
 
             //Cerrar Archivo
-
             defer Archivo.Close()
+
 
             BanderaOs = true
 
@@ -73,7 +73,7 @@
 
             }
 
-            Writer.Flush()
+            _ = Writer.Flush()
 
         } else {
 
@@ -82,7 +82,7 @@
         }
     }
 
-    func GenerarReporte(NombreReporte string) {
+    func GenerarReporte(NombreReporte string, Ruta string) {
 
         //Variables
         var RutaGraphviz string
@@ -101,7 +101,7 @@
 			RutaGraphviz = "dot "
             Parametros = "-Tpng -o "
             FileInput = "C:\\GraficasMIA\\" + NombreReporte + ".txt"
-            FileOutput = "C:\\GraficasMIA\\" + NombreReporte + ".png "
+            FileOutput = Ruta
 
             GvizCommand = RutaGraphviz + Parametros + FileOutput + FileInput
 
@@ -113,7 +113,7 @@
             //Catch Error
             if AvisoError != nil {
 
-				RutaGraphviz = "dot "
+				RutaGraphviz = "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe\""
                 GvizCommand = RutaGraphviz + Parametros + FileOutput + FileInput
                 Command = exec.Command("cmd", "/C", GvizCommand)
                 Command.Stdout = os.Stdout
@@ -123,17 +123,25 @@
                 if AvisoError != nil {
 
                     fmt.Println("Error Al Generar El Reporte")
-                    fmt.Scanln()
+                    fmt.Println("")
 
                 } else {
 
-                    fmt.Print("Abro La Imagen")
+                    print("Abro Imagen")
+
+                    GvizCommand = FileOutput + " &"
+                    Command = exec.Command("cmd", "/C", GvizCommand)
+                    Command.Stdout = os.Stdout
+                    AvisoError = Command.Run()
 
                 }
 
             } else {
 
-                print("Abro La Imagen")
+                GvizCommand = FileOutput + " &"
+                Command = exec.Command("cmd", "/C", GvizCommand)
+                Command.Stdout = os.Stdout
+                AvisoError = Command.Run()
 
             }
 

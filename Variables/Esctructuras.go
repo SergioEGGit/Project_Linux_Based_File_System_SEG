@@ -29,3 +29,35 @@
     	NamePart [16]byte
 
 	}
+
+	//Extended Boot Record
+	type EBREstructura struct {
+
+		StatusEBR byte
+		FitEBR byte
+		InicioEBR int64
+		SizeEBR int64
+		SiguienteEBR int64
+		NameEBR [16]byte
+
+	}
+
+	//Discos Montados
+	type MountEstructura struct {
+
+		IdentificadorMount string
+		EBRMount EBREstructura
+		ParticionMount  ParticionEstructura
+		NombreMount string
+		RutaDiscoMount string
+		TipoMount string
+
+	}
+
+	//Identificador Discos
+	type IDEstructura struct {
+
+		LetraID string
+		ParticionID int
+
+	}

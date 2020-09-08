@@ -28,6 +28,7 @@
 
         //Obtiene El Nombre Del Sistema Operativo
         Metodos.ObtenerNombreOs()
+        Variables.MapIdentificador = make(map[string]Variables.IDEstructura)
         
         //Presentación
         color.HEX("#1fbfad", false).Println("                 <Bienvenido Al Sistema SEG>")

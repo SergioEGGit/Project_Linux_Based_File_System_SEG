@@ -45,6 +45,18 @@
 
 			VerificarComandoFdisk()
 
+		case "mount":
+
+			VerificarComandoMount()
+
+		case "unmount":
+
+			VerificarComandoUnMount()
+
+		case "rep":
+
+			VerificarComandoRep()
+
 		case "cls":
 
 			VerificarComandoCls()

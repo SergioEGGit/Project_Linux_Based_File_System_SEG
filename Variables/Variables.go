@@ -12,3 +12,5 @@
     var MapComandos map[string]string
     var ArregloComandos []string
     var ArregloArchivo [1000]string
+    var MapIdentificador map[string]IDEstructura
+    var ArregloParticionesMontadas []MountEstructura

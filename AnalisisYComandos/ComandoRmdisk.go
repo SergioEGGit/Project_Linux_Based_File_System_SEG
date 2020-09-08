@@ -49,13 +49,14 @@
 
 						if len(ArregloParametros) > 1 {
 
+							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 
 							Path = Metodos.ExisteRuta(ArregloParametros[1])
 
 							if Path {
 
-								Variables.MapComandos["path"] = Metodos.QuitarComillas(ArregloParametros[1])
+								Variables.MapComandos["path"] = ArregloParametros[1]
 
 							}
 

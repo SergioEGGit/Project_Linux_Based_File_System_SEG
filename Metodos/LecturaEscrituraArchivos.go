@@ -26,6 +26,8 @@
 
         //Asignación
         Ruta = Trim(Ruta)
+        Extension = make([]string, 0)
+        LineasArchivo = make([]string, 0)
         Extension = SplitArchivo(Ruta)
 
         if Extension[1] == "mia" {

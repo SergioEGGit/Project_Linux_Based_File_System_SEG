@@ -47,12 +47,14 @@
 
 					if len(ArregloParametros) > 1 {
 
+
+						ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 						ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 						ComandoOk = Metodos.ExisteRuta(ArregloParametros[1])
 
 						if ComandoOk {
 
-							Variables.MapComandos["path"] = Metodos.QuitarComillas(ArregloParametros[1])
+							Variables.MapComandos["path"] = ArregloParametros[1]
 
 						}
 
@@ -135,6 +137,9 @@
 		//Variables
 		var Bandera bool
 		var ArregloTemp []string
+
+		//Asignacion
+		ArregloTemp = make([]string, 0)
 
 		//Leer Archivo
 		Bandera, ArregloTemp = Metodos.LeerArchivoEntrada(Metodos.Trim(Variables.MapComandos["path"]))

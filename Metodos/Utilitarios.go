@@ -3,18 +3,18 @@
 
     package Metodos
 
-import (
-	"../Variables"
-	"bytes"
-	"encoding/binary"
-	"fmt"
-	"github.com/gookit/color"
-	"os"
-	"regexp"
-	"runtime"
-	"strings"
-	"unsafe"
-)
+	import (
+		"../Variables"
+		"bytes"
+		"encoding/binary"
+		"fmt"
+		"github.com/gookit/color"
+		"os"
+		"regexp"
+		"runtime"
+		"strings"
+		"unsafe"
+	)
 
 //----------------------------------------------------Métodos-----------------------------------------------------------
 
@@ -430,6 +430,251 @@ import (
 			EscribirArchivoBinario(Archivo, CadenaBinariaMBR.Bytes())
 
 			Archivo.Close()
+
+		}
+
+	}
+
+	func EscribirArchivoBinarioArregloDelete(MBRAuxiliar Variables.MBREstructura, PosicionInicial int64, PosicionFinal int64) {
+
+		//Variables
+		var CeroBinario int
+		var CeroByte *int
+		var Archivo *os.File
+		var CadenaBinariaInicio bytes.Buffer
+		var CadenaBinariaMBR bytes.Buffer
+		var AvisoError error
+		var MBRModificado Variables.MBREstructura
+
+		//Abrir El Archivo
+		Archivo, AvisoError = os.OpenFile(Variables.MapComandos["path"], os.O_WRONLY, os.ModePerm)
+
+		//Catch Error
+		if AvisoError != nil {
+
+			color.HEX("#de4843", false).Println("Error Al Abrir El Archivo")
+			fmt.Println("")
+
+		} else {
+
+			//Mover Puntero
+			_, _ = Archivo.Seek(0, 0)
+
+			//Asignación
+			MBRModificado = MBRAuxiliar
+			MBRDireccion := &MBRModificado
+
+			//Escribir Archivo
+			_ = binary.Write(&CadenaBinariaMBR, binary.BigEndian, MBRDireccion)
+			EscribirArchivoBinario(Archivo, CadenaBinariaMBR.Bytes())
+
+			//Mover A Posicion Inicial Particion
+			_, _ = Archivo.Seek(PosicionInicial, 0)
+
+			//Asignación
+			CeroBinario = 0
+			CeroByte = &CeroBinario
+
+			//Escribir Archivo
+			_ = binary.Write(&CadenaBinariaInicio, binary.BigEndian, CeroByte)
+			EscribirArchivoBinario(Archivo, CadenaBinariaInicio.Bytes())
+
+			//Mover A Posicion Final Particion
+			_, _ = Archivo.Seek(PosicionFinal, 0)
+
+			//Asignación
+			CeroBinario = 0
+			CeroByte = &CeroBinario
+
+			//Escribir Archivo
+			_ = binary.Write(&CadenaBinariaInicio, binary.BigEndian, CeroByte)
+			EscribirArchivoBinario(Archivo, CadenaBinariaInicio.Bytes())
+
+
+			Archivo.Close()
+
+		}
+
+	}
+
+	func EscribirArchivoBinarioEBR(EBRAuxiliar Variables.EBREstructura, PosicionInicial int64) {
+
+		//Variables
+		var Archivo *os.File
+		var CadenaBinariaEBR bytes.Buffer
+		var AvisoError error
+		var EBRModificado Variables.EBREstructura
+
+		//Abrir El Archivo
+		Archivo, AvisoError = os.OpenFile(Variables.MapComandos["path"], os.O_WRONLY, os.ModePerm)
+
+		//Catch Error
+		if AvisoError != nil {
+
+			color.HEX("#de4843", false).Println("Error Al Abrir El Archivo")
+			fmt.Println("")
+
+		} else {
+
+			//Mover Puntero
+			_, _ = Archivo.Seek(PosicionInicial, 0)
+
+			//Asignación
+			EBRModificado = EBRAuxiliar
+			EBRDireccion := &EBRModificado
+
+			//Escribir Archivo
+			_ = binary.Write(&CadenaBinariaEBR, binary.BigEndian, EBRDireccion)
+			EscribirArchivoBinario(Archivo, CadenaBinariaEBR.Bytes())
+
+			Archivo.Close()
+
+		}
+
+	}
+
+	func EscribirArchivoBinarioEBRDelete(EBREliminar Variables.EBREstructura, PosicionInicial int64) {
+
+		//Variables
+		var CeroBinario int
+		var PosicionFinal int64
+		var CeroByte *int
+		var Archivo *os.File
+		var CadenaBinariaEBR bytes.Buffer
+		var CadenaBinariaEBRFinal bytes.Buffer
+		var AvisoError error		
+
+		//Abrir El Archivo
+		Archivo, AvisoError = os.OpenFile(Variables.MapComandos["path"], os.O_WRONLY, os.ModePerm)
+
+		//Catch Error
+		if AvisoError != nil {
+
+			color.HEX("#de4843", false).Println("Error Al Abrir El Archivo")
+			fmt.Println("")
+
+		} else {
+
+			//Mover Puntero
+			_, _ = Archivo.Seek(PosicionInicial, 0)
+
+			//Asignación
+			CeroBinario = 0
+			CeroByte = &CeroBinario
+
+			//Escribir Archivo
+			_ = binary.Write(&CadenaBinariaEBR, binary.BigEndian, CeroByte)
+			EscribirArchivoBinario(Archivo, CadenaBinariaEBR.Bytes())
+
+			//Posicion Final
+			PosicionFinal = PosicionInicial + int64(unsafe.Sizeof(Variables.EBREstructura{})) + EBREliminar.SizeEBR
+
+			//Mover A Posicion Final Particion
+			_, _ = Archivo.Seek(PosicionFinal, 0)
+
+			//Asignación
+			CeroBinario = 0
+			CeroByte = &CeroBinario
+
+			//Escribir Archivo
+			_ = binary.Write(&CadenaBinariaEBRFinal, binary.BigEndian, CeroByte)
+			EscribirArchivoBinario(Archivo, CadenaBinariaEBRFinal.Bytes())
+
+
+			Archivo.Close()
+
+		}
+
+	}
+
+	func EscribirArchivoBinarioEBRAdd(EBRModificar Variables.EBREstructura, PosicionInicial int64) {
+
+		//Variables
+		var Archivo *os.File
+		var CadenaBinariaEBR bytes.Buffer
+		var AvisoError error
+		var EBRModificado Variables.EBREstructura
+
+		//Abrir El Archivo
+		Archivo, AvisoError = os.OpenFile(Variables.MapComandos["path"], os.O_WRONLY, os.ModePerm)
+
+		//Catch Error
+		if AvisoError != nil {
+
+			color.HEX("#de4843", false).Println("Error Al Abrir El Archivo")
+			fmt.Println("")
+
+		} else {
+
+			//Mover Puntero
+			_, _ = Archivo.Seek(PosicionInicial, 0)
+
+			//Asignación
+			EBRModificado = EBRModificar
+			EBRDireccion := &EBRModificado
+
+			//Escribir Archivo
+			_ = binary.Write(&CadenaBinariaEBR, binary.BigEndian, EBRDireccion)
+			EscribirArchivoBinario(Archivo, CadenaBinariaEBR.Bytes())
+
+			Archivo.Close()
+
+		}
+
+	}
+
+	func LeerArchivoBinarioEBR(Ruta string, PosicionExtendida int64) (Variables.EBREstructura, bool) {
+
+		//Variables
+		var Archivo *os.File
+		var AvisoError error
+		var EBRAuxiliar Variables.EBREstructura
+		var PosicionEBR int
+		var ArregloBytes []byte
+		var Decodificador *bytes.Buffer
+
+		//Abrir El Archivo
+		Archivo, AvisoError = os.Open(Ruta)
+
+		//Catch Error
+		if AvisoError != nil {
+
+			color.HEX("#de4843", false).Println("Error Al Abrir El Archivo")
+			fmt.Println("")
+			return EBRAuxiliar, false
+
+		} else {
+
+			//Estructura Auxiliar
+			EBRAuxiliar = Variables.EBREstructura{}
+			EBRDireccion := &EBRAuxiliar
+
+			//Obtener Posicion Del MBR
+			PosicionEBR = int(unsafe.Sizeof(EBRAuxiliar))
+
+			//Mover Puntero
+			_, _ = Archivo.Seek(PosicionExtendida, 0)
+
+			//Obtener Arreglo De Bytes
+			ArregloBytes = LeerArchivoBinario(Archivo, PosicionEBR)
+
+			//Decodificar Binario
+			Decodificador = bytes.NewBuffer(ArregloBytes)
+
+			AvisoError = binary.Read(Decodificador, binary.BigEndian, EBRDireccion)
+
+			if AvisoError != nil {
+
+				color.HEX("#de4843", false).Println("Error Al Leer El Archivo")
+				fmt.Println("")
+				return EBRAuxiliar, false
+
+			} else {
+
+				Archivo.Close()
+				return EBRAuxiliar, true
+
+			}
 
 		}
 

@@ -116,13 +116,14 @@
 
 						if len(ArregloParametros) > 1 {
 
+							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 
 							Path = Metodos.VerificarYCrearRutas(ArregloParametros[1])
 
 							if Path {
 
-                                Variables.MapComandos["path"] = Metodos.QuitarComillas(ArregloParametros[1])
+                                Variables.MapComandos["path"] = ArregloParametros[1]
 
 							}
 
@@ -429,6 +430,7 @@
 			MBRAuxiliar = Variables.MBREstructura{}
 			//Tamaño Total Del Disco TamañoTotal - Tamaño MBR
 			MBRAuxiliar.SizeMbr = Posicion + 1 - int64(unsafe.Sizeof(Variables.MBREstructura{}))
+
 			//Fecha Actual
 			Fecha = time.Now()
 			copy(MBRAuxiliar.FCreacionMBR[:], Fecha.String())
