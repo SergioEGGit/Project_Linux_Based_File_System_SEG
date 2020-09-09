@@ -60,13 +60,8 @@
 							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 
-							Path = Metodos.VerificarYCrearRutas(ArregloParametros[1])
-
-							if Path {
-
-								Variables.MapComandos["path"] = ArregloParametros[1]
-
-							}
+							Variables.MapComandos["path"] = ArregloParametros[1]
+							Path = true
 
 							ContadorPath++
 
@@ -297,8 +292,8 @@
 
 		} else {
 
-			color.HEX("#de4843", false).Println("Error Al Ejecutar El Comando fdisk")
-			color.HEX("#de4843", false).Println("El Disco Se Encuentra Corrupto")
+			color.HEX("#de4843", false).Println("Error Al Ejecutar El Comando mount")
+			color.HEX("#de4843", false).Println("No Existe El Disco Indicado")
 			fmt.Println("")
 
 		}
@@ -315,7 +310,7 @@
 		var NuevoId string
 		var Existe bool
 		var ArrayDisco []string
-		var ArrayLetra [26]string
+		var ArrayLetra [49]string
 		var IdAuxiliar Variables.IDEstructura
 
 		//Asignacion
@@ -325,8 +320,10 @@
 		Existe = false
 		ArrayDisco = make([]string, 0)
 		IdAuxiliar = Variables.IDEstructura{}
-		ArrayLetra = [26]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n" +
-		                        "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
+		ArrayLetra = [49]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n" +
+		                        "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee" +
+		                        "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn" +
+								"oo", "pp", "qq", "rr", "ss", "tt", "uu", "vv", "ww", "xx", "yy", "zz"}
 
 		//Obtener Nombre Archivo
 		_, Archivo = filepath.Split(Metodos.Trim(Variables.MapComandos["path"]))
@@ -408,6 +405,7 @@
 		//Variables
 		var CodigoPart string
 		var ExisteNombre bool
+		var EstaMontada bool
 		var EBRAuxiliar Variables.EBREstructura
 		var PartAuxiliar Variables.ParticionEstructura
 		var PartMontada Variables.MountEstructura
@@ -415,9 +413,21 @@
 		//Asignacion
 		CodigoPart = ""
 		ExisteNombre = false
+		EstaMontada = false
 		EBRAuxiliar = Variables.EBREstructura{}
 		PartAuxiliar = Variables.ParticionEstructura{}
 		ExisteNombre, EBRAuxiliar, PartAuxiliar = VerificarNombreParticion()
+
+		// Verificar Montaje
+		for Contador := 0; Contador < len(Variables.ArregloParticionesMontadas); Contador++ {
+
+			if strings.EqualFold(Variables.MapComandos["name"], Variables.ArregloParticionesMontadas[Contador].NombreMount) && strings.EqualFold(Variables.MapComandos["path"], Variables.ArregloParticionesMontadas[Contador].RutaDiscoMount) {
+
+				EstaMontada = true
+
+			}
+
+		}
 
 		if ExisteNombre {
 
@@ -425,29 +435,38 @@
 
 			if CodigoPart != "" {
 
-				if EBRAuxiliar.SizeEBR != 0 {
+				if !EstaMontada {
 
-					PartMontada.IdentificadorMount = CodigoPart
-					PartMontada.EBRMount = EBRAuxiliar
-					PartMontada.ParticionMount = PartAuxiliar
-					PartMontada.NombreMount = Metodos.Trim(Variables.MapComandos["name"])
-					PartMontada.RutaDiscoMount = Metodos.Trim(Variables.MapComandos["path"])
-					PartMontada.TipoMount = "Logica"
+					if EBRAuxiliar.SizeEBR != 0 {
+
+						PartMontada.IdentificadorMount = CodigoPart
+						PartMontada.EBRMount = EBRAuxiliar
+						PartMontada.ParticionMount = PartAuxiliar
+						PartMontada.NombreMount = Metodos.Trim(Variables.MapComandos["name"])
+						PartMontada.RutaDiscoMount = Metodos.Trim(Variables.MapComandos["path"])
+						PartMontada.TipoMount = "Logica"
+
+					} else {
+
+						PartMontada.IdentificadorMount = CodigoPart
+						PartMontada.EBRMount = EBRAuxiliar
+						PartMontada.ParticionMount = PartAuxiliar
+						PartMontada.NombreMount = Metodos.Trim(Variables.MapComandos["name"])
+						PartMontada.RutaDiscoMount = Metodos.Trim(Variables.MapComandos["path"])
+						PartMontada.TipoMount = "Primaria"
+
+					}
+
+					Variables.ArregloParticionesMontadas = append(Variables.ArregloParticionesMontadas, PartMontada)
+					color.Success.Println("Particion Montada Con Exito!")
+					fmt.Println("")
 
 				} else {
 
-					PartMontada.IdentificadorMount = CodigoPart
-					PartMontada.EBRMount = EBRAuxiliar
-					PartMontada.ParticionMount = PartAuxiliar
-					PartMontada.NombreMount = Metodos.Trim(Variables.MapComandos["name"])
-					PartMontada.RutaDiscoMount = Metodos.Trim(Variables.MapComandos["path"])
-					PartMontada.TipoMount = "Primaria"
+					color.HEX("#de4843", false).Println("Error La Particion Ya Se Encuentra Montada")
+					fmt.Println("")
 
 				}
-
-				Variables.ArregloParticionesMontadas = append(Variables.ArregloParticionesMontadas, PartMontada)
-				color.Success.Println("Particion Montada Con Exito!")
-				fmt.Println("")
 
 			} else {
 

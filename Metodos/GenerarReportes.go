@@ -14,7 +14,7 @@
 
 //-----------------------------------------Métodos-------------------------------------------------
 
-    func GenerarArchivoTxt(NombreReporte, CadenaArchivo string) {
+    func GenerarArchivoTxt(NombreReporte, CadenaArchivo, Directorio string) {
 
         //Variables
         var BytesArray int
@@ -30,7 +30,7 @@
         if Variables.SistemaOperativo == "windows" {
 
             //Abrir Archivo Y Generar Try Catch Error
-            RutaArchivo = "C:\\GraficasMIA\\" + NombreReporte + ".txt"
+            RutaArchivo = Directorio + NombreReporte + ".txt"
             Archivo, AvisoError = os.Create(RutaArchivo)
 
             //Catch Error
@@ -82,7 +82,7 @@
         }
     }
 
-    func GenerarReporte(NombreReporte string, Ruta string) {
+    func GenerarReporte(NombreReporte, Directorio, Archivo string) {
 
         //Variables
         var RutaGraphviz string
@@ -100,8 +100,8 @@
 
 			RutaGraphviz = "dot "
             Parametros = "-Tpng -o "
-            FileInput = "C:\\GraficasMIA\\" + NombreReporte + ".txt"
-            FileOutput = Ruta
+            FileInput = " " + Directorio + NombreReporte + ".txt"
+            FileOutput = Directorio + Archivo + " "
 
             GvizCommand = RutaGraphviz + Parametros + FileOutput + FileInput
 
@@ -126,8 +126,6 @@
                     fmt.Println("")
 
                 } else {
-
-                    print("Abro Imagen")
 
                     GvizCommand = FileOutput + " &"
                     Command = exec.Command("cmd", "/C", GvizCommand)

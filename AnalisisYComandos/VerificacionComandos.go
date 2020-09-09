@@ -53,6 +53,10 @@
 
 			VerificarComandoUnMount()
 
+		case "mkfs":
+
+			VerificarComandoMkfs()
+
 		case "rep":
 
 			VerificarComandoRep()

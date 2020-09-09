@@ -2144,37 +2144,6 @@
 
 			color.Success.Println("Particion Creada Con Exito!")
 
-
-
-			ArregloEBR = make([]Variables.EBREstructura, 0)
-			ArregloEBR = ObtenerEBR(InicioListaLogica)
-
-			// Crear Disco Virtual
-			Metodos.LimpiaDisco()
-			Metodos.CreaDisco(int(SizeExtendida))
-
-			// Rellenar Particiones Existentes
-			for Contador := 0; Contador < len(ArregloEBR); Contador++ {
-
-				InicioPart = ArregloEBR[Contador].InicioEBR
-				InicioReal = InicioPart - InicioListaLogica
-				SizePart = ArregloEBR[Contador].SizeEBR
-				SizeTotal = 0
-				if SizePart != 0 {
-
-					SizeTotal = int(SizePart + int64(unsafe.Sizeof(Variables.EBREstructura{})))
-
-				}
-
-				Metodos.LlenaDisco(int(InicioReal), SizeTotal)
-			}
-
-			Metodos.GeneraEspacios()
-			fmt.Println("")
-			fmt.Println("Espacios Vacios:")
-			Metodos.MostrarEspacios()
-			fmt.Println("")
-
 		} else {
 
 			color.HEX("#de4843", false).Println("No Existe Espacio Disponible Para La Particion Indicada")
@@ -2441,42 +2410,6 @@
 				}
 
 				color.Success.Println("Particion Eliminada Con Exito!")
-
-				var InicioPart int64
-				var InicioReal int64
-				var SizePart int64
-				var SizeTotal int
-
-				// Crear Disco Virtual
-				Metodos.LimpiaDisco()
-				Metodos.CreaDisco(25500)
-				ArregloEBR = make([]Variables.EBREstructura, 0)
-
-				ArregloEBR = ObtenerEBR(InicioExtendida)
-
-				// Rellenar Particiones Existentes
-				for Contador := 0; Contador < len(ArregloEBR); Contador++ {
-
-					InicioPart = ArregloEBR[Contador].InicioEBR
-					InicioReal = InicioPart - InicioExtendida
-					SizePart = ArregloEBR[Contador].SizeEBR
-					SizeTotal = 0
-					if SizePart != 0 {
-
-						SizeTotal = int(SizePart + int64(unsafe.Sizeof(Variables.EBREstructura{})))
-
-					}
-
-					Metodos.LlenaDisco(int(InicioReal), SizeTotal)
-
-				}
-
-				Metodos.GeneraEspacios()
-				fmt.Println("")
-				fmt.Println("Espacios Vacios:")
-				Metodos.MostrarEspacios()
-				fmt.Println("")
-
 				break
 
 			} else if Cadena == "n" {
@@ -2896,35 +2829,6 @@
 			Metodos.EscribirArchivoBinarioEBRAdd(ArregloEBR[Contador], ArregloEBR[Contador].InicioEBR)
 
 		}
-
-		ArregloEBR = make([]Variables.EBREstructura, 0)
-		ArregloEBR = ObtenerEBR(InicioExtendida)
-
-		// Crear Disco Virtual
-		Metodos.LimpiaDisco()
-		Metodos.CreaDisco(int(SizeExtendida))
-
-		// Rellenar Particiones Existentes
-		for Contador := 0; Contador < len(ArregloEBR); Contador++ {
-
-			InicioPart = ArregloEBR[Contador].InicioEBR
-			InicioReal = InicioPart - InicioExtendida
-			SizePart = ArregloEBR[Contador].SizeEBR
-			SizeTotal = 0
-			if SizePart != 0 {
-
-				SizeTotal = int(SizePart + int64(unsafe.Sizeof(Variables.EBREstructura{})))
-
-			}
-
-			Metodos.LlenaDisco(int(InicioReal), SizeTotal)
-		}
-
-		Metodos.GeneraEspacios()
-		fmt.Println("")
-		fmt.Println("Espacios Vacios:")
-		Metodos.MostrarEspacios()
-		fmt.Println("")
 
 		if Bandera {
 

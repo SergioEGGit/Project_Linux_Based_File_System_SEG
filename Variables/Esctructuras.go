@@ -61,3 +61,39 @@
 		ParticionID int
 
 	}
+
+	//Super Bloque
+	type SuperBloqueEstructura struct {
+
+		NombreDiscoSuperBloque [16]byte
+		ArbolCountSuperBloque int64
+		DetalleDirectorioCountSuperBloque int64
+		InodosCountSuperBloque int64
+		BloquesCountSuperBloque int64
+		ArbolFreeSuperBloque int64
+		DetalleFreeSuperBloque int64
+		InodosFreeSuperBloque int64
+		BloquesFreeSuperBloque int64
+		FechaCreacionSuperBloque [19]byte
+		FechaUltimoMontajeSuperBloque [19]byte
+		MontajesSuperBloque int64
+		PBitmapArbolSuperBloque int64
+		PArbolSuperBloque int64
+		PBitmapDetalleSuperBloque int64
+		PDetalleSuperBloque int64
+		PBitmapTablaSuperBloque int64
+		PTablaSuperBloque int64
+		PBitmapBloquesSuperBloque int64
+		PBloquesSuperBloque int64
+		PLogSuperBloque int64
+		ArbolSizeSuperBloque int64
+		DetalleSizeSuperBloque int64
+		InodoSizeSuperBloque int64
+		BloquesSizeSuperBloque int64
+		ArbolFreeBitSuperBloque int64
+		DetalleFreeBitSuperBloque int64
+		TablaFreeBitSuperBloque int64
+		BloquesFreeBitSuperBloque int64
+		MagicNumSuperBloque int64
+
+	}

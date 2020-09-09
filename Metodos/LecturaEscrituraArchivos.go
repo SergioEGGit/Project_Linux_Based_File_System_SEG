@@ -88,6 +88,7 @@
         //Asignación
         Final = false
         ContadorAuxiliar = -1
+        Variables.ArregloArchivo = make([]string, 0)
 
         //Comienza Recuperación
 
@@ -98,17 +99,17 @@
                 if !Final {
 
                     ContadorAuxiliar++
-                    Variables.ArregloArchivo[ContadorAuxiliar] = Trim(ArregloAuxiliar[Con])
+                    Variables.ArregloArchivo = append(Variables.ArregloArchivo, Trim(ArregloAuxiliar[Con]))
 
                 } else {
 
                     if BuscarPrefijo(Trim(ArregloAuxiliar[Con])) {
 
-                        Variables.ArregloArchivo[ContadorAuxiliar] = Variables.ArregloArchivo[ContadorAuxiliar] + " " + Trim(ArregloAuxiliar[Con])
+                        Variables.ArregloArchivo = append(Variables.ArregloArchivo, Variables.ArregloArchivo[ContadorAuxiliar] + " " + Trim(ArregloAuxiliar[Con]))
 
                     } else {
 
-                        Variables.ArregloArchivo[ContadorAuxiliar] = Variables.ArregloArchivo[ContadorAuxiliar] + Trim(ArregloAuxiliar[Con])
+                        Variables.ArregloArchivo = append(Variables.ArregloArchivo, Variables.ArregloArchivo[ContadorAuxiliar] + Trim(ArregloAuxiliar[Con]))
 
                     }
 
@@ -116,7 +117,7 @@
 
                 if BuscarSeparador(Trim(ArregloAuxiliar[Con])) {
 
-                    Variables.ArregloArchivo[ContadorAuxiliar] = Trim(strings.Replace(Trim(Variables.ArregloArchivo[ContadorAuxiliar]), "\\*", "", 1))
+                    Variables.ArregloArchivo = append(Variables.ArregloArchivo, Trim(strings.Replace(Trim(Variables.ArregloArchivo[ContadorAuxiliar]), "\\*", "", 1)) )
                     Final = true
 
                 } else {

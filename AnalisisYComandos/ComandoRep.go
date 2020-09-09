@@ -335,7 +335,50 @@
 
 			} else if Variables.MapComandos["nombre"] == "disk" {
 
-				print("Reporte Disco")
+				Bandera = false
+
+				MBRAuxiliar, Bandera = Metodos.LeerArchivoBinarioArraglo(Metodos.Trim(Variables.ArregloParticionesMontadas[NumeroMount].RutaDiscoMount))
+
+				if Bandera {
+
+					// Verificar Si Hay EBR
+					if MBRAuxiliar.Particion1MBR.TipoPart == 'e' {
+
+						ExisteExtendida = true
+						InicioExtendida = MBRAuxiliar.Particion1MBR.InicioPart
+
+					} else if MBRAuxiliar.Particion2MBR.TipoPart == 'e' {
+
+						ExisteExtendida = true
+						InicioExtendida = MBRAuxiliar.Particion2MBR.InicioPart
+
+					} else if MBRAuxiliar.Particion3MBR.TipoPart == 'e' {
+
+						ExisteExtendida = true
+						InicioExtendida = MBRAuxiliar.Particion3MBR.InicioPart
+
+					} else if MBRAuxiliar.Particion4MBR.TipoPart == 'e' {
+
+						ExisteExtendida = true
+						InicioExtendida = MBRAuxiliar.Particion4MBR.InicioPart
+
+					}
+
+					if ExisteExtendida {
+
+						ArregloEBR = ObtenerEBRComandoRep(InicioExtendida, Metodos.Trim(Variables.ArregloParticionesMontadas[NumeroMount].RutaDiscoMount))
+
+					}
+
+					Reportes.ReporteDisco(MBRAuxiliar, Metodos.Trim(Variables.MapComandos["path"]), ArregloEBR)
+
+				} else {
+
+					color.HEX("#de4843", false).Println("Error Al Ejecutar El Comando rep")
+					color.HEX("#de4843", false).Println("El Disco Se Encuentra Corrupto")
+					fmt.Println("")
+
+				}
 
 			} else {
 
