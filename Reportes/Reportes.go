@@ -12,6 +12,7 @@
 		"path/filepath"
 		"sort"
 		"strconv"
+		"strings"
 	)
 
 //----------------------------------------------------Métodos-----------------------------------------------------------
@@ -309,8 +310,13 @@
 
 		//Asignacion
 		Cadena = ""
+		Directorio = ""
+		Archivo = ""
 		Libre = true
 		LibreEBR = true
+		Path = false
+		SizeExtendida = 0
+		InicioExtendida = 0
 		ArregloParticiones = make([]Variables.ParticionEstructura, 0)
 		ArregloDisco = make([]int, 0)
 		ArregloDiscoSize = make([]int, 0)
@@ -332,7 +338,6 @@
 
 				Metodos.LlenaDisco(int(ArregloParticiones[Contador].InicioPart), int(ArregloParticiones[Contador].SizePart))
 				ArregloDisco = append(ArregloDisco, int(ArregloParticiones[Contador].InicioPart))
-				//ArregloDiscoEBRSize = append(ArregloDiscoEBRSize, int(ArregloParticiones[Contador].SizePart))
 
 				if ArregloParticiones[Contador].TipoPart == 'e' {
 
@@ -351,7 +356,36 @@
 			if Metodos.EspaciosDisponibles[Contador].Disponible {
 
 				ArregloDisco = append(ArregloDisco, Metodos.EspaciosDisponibles[Contador].P1)
-				//ArregloDiscoSize = append(ArregloDiscoSize, Metodos.EspaciosDisponibles[Contador].Tamano)
+
+			}
+
+		}
+
+		sort.Ints(ArregloDisco)
+
+		for Contador := 0; Contador < len(ArregloDisco); Contador++ {
+
+			for Con := 0; Con < len(ArregloParticiones); Con ++ {
+
+				if ArregloDisco[Contador] == int(ArregloParticiones[Con].InicioPart) {
+
+					ArregloDiscoSize = append(ArregloDiscoSize, int(ArregloParticiones[Con].SizePart))
+
+				}
+
+			}
+
+			for Con := 0; Con <= 200 - 1; Con++ {
+
+				if Metodos.EspaciosDisponibles[Con].Disponible {
+
+					if ArregloDisco[Contador] == Metodos.EspaciosDisponibles[Con].P1 {
+
+						ArregloDiscoSize = append(ArregloDiscoSize, Metodos.EspaciosDisponibles[Con].Tamano)
+
+					}
+
+				}
 
 			}
 
@@ -365,11 +399,16 @@
 
 			for Contador := 0; Contador < len(ArregloEBR); Contador ++ {
 
-				Metodos.LlenaDisco(int(ArregloEBR[Contador].InicioEBR) - InicioExtendida, int(ArregloEBR[Contador].SizeEBR))
-				ArregloDiscoEBR = append(ArregloDiscoEBR, int(ArregloEBR[Contador].InicioEBR) - InicioExtendida)
-				//ArregloDiscoEBRSize = append(ArregloDiscoEBRSize, int(ArregloEBR[Contador].SizeEBR))
+				NombreParticion = string(bytes.Trim(ArregloEBR[Contador].NameEBR[:], "\x00"))
 
-			}
+				if ArregloEBR[Contador].SizeEBR != 0 {
+
+					Metodos.LlenaDisco(int(ArregloEBR[Contador].InicioEBR) - InicioExtendida, int(ArregloEBR[Contador].SizeEBR) + 48)
+					ArregloDiscoEBR = append(ArregloDiscoEBR, int(ArregloEBR[Contador].InicioEBR) - InicioExtendida)
+
+				}
+
+		    }
 
 			Metodos.GeneraEspacios()
 
@@ -378,15 +417,42 @@
 				if Metodos.EspaciosDisponibles[Contador].Disponible {
 
 					ArregloDiscoEBR = append(ArregloDiscoEBR, Metodos.EspaciosDisponibles[Contador].P1)
-					//ArregloDiscoEBRSize = append(ArregloDiscoEBRSize, Metodos.EspaciosDisponibles[Contador].Tamano)
+
+				}
+
+			}
+
+			sort.Ints(ArregloDiscoEBR)
+
+			for Contador := 0; Contador < len(ArregloDiscoEBR); Contador++ {
+
+				for Con := 0; Con < len(ArregloEBR); Con ++ {
+
+					if ArregloDiscoEBR[Contador] == int(ArregloEBR[Con].InicioEBR) - InicioExtendida {
+
+							ArregloDiscoEBRSize = append(ArregloDiscoEBRSize, int(ArregloEBR[Con].SizeEBR))
+
+					}
+
+				}
+
+				for Con := 0; Con <= 200 - 1; Con++ {
+
+					if Metodos.EspaciosDisponibles[Con].Disponible {
+
+						if ArregloDiscoEBR[Contador] == Metodos.EspaciosDisponibles[Con].P1 {
+
+							ArregloDiscoEBRSize = append(ArregloDiscoEBRSize, Metodos.EspaciosDisponibles[Con].Tamano)
+
+						}
+
+					}
 
 				}
 
 			}
 
 		}
-
-		sort.Ints(ArregloDisco)
 
 		Cadena += "digraph Reporte_Disco { \n" +
 			"shape = plaintext \n" +
@@ -406,14 +472,12 @@
 
 						Cadena += "<td bgcolor=\"#B6EE09\" height = \"50\"> Primaria_" + NombreParticion + ": " + strconv.FormatFloat(float64(ArregloParticiones[Con].SizePart * 100) / float64(MBRAuxiliar.SizeMbr + 200), 'f', 2, 64) + "%</td> \n"
 
-					} else if ArregloParticiones[Contador].TipoPart == 'e' {
+					} else if ArregloParticiones[Con].TipoPart == 'e' {
 
 						Cadena += "<td bgcolor=\"#FF3F59\" height = \"100\"> \n" +
 							"<table color='#FFFFFF' cellspacing='0'> \n" +
-							"<tr><td bgcolor=\"#FF3F59\" height = \"50\" colspan=\"" + strconv.Itoa(len(ArregloDiscoEBR)) + "\">" + "Extendida_" + NombreParticion + ": " +  strconv.FormatFloat(float64(ArregloParticiones[Con].SizePart * 100) / float64(MBRAuxiliar.SizeMbr + 200), 'f', 2, 64) + "%</td></tr> \n" +
+							"<tr><td bgcolor=\"#FF3F59\" height = \"50\" colspan=\"" + strconv.Itoa(len(ArregloDiscoEBR) * 2) + "\">" + "Extendida_" + NombreParticion + ": " +  strconv.FormatFloat(float64(ArregloParticiones[Con].SizePart * 100) / float64(MBRAuxiliar.SizeMbr + 200), 'f', 2, 64) + "%</td></tr> \n" +
 							"<tr> \n"
-
-						sort.Ints(ArregloDiscoEBR)
 
 						for Count := 0; Count < len(ArregloDiscoEBR); Count++ {
 
@@ -424,17 +488,50 @@
 									NombreParticion = string(bytes.Trim(ArregloEBR[CountEBR].NameEBR[:], "\x00"))
 
 									Cadena += "<td bgcolor=\"#FF2828\" height = \"30\"> EBR: " + strconv.FormatFloat(float64(48 * 100) / float64(SizeExtendida), 'f', 2, 64) + "%</td> \n"
-									Cadena += "<td bgcolor=\"#FF9058\" height = \"30\"> Logica_ " + NombreParticion + ": " + strconv.FormatFloat(float64(ArregloEBR[CountEBR].SizeEBR * 100) / float64(SizeExtendida), 'f', 2, 64) + "%</td> \n"
+
+									if strings.EqualFold(NombreParticion, "none") {
+
+										if ArregloDiscoEBRSize[0] == 0 {
+
+											Cadena += "<td bgcolor=\"#EE0947\" height = \"50\"> Libre: " + strconv.FormatFloat(float64((ArregloDiscoEBRSize[Count + 1] - 48) * 100) / float64(SizeExtendida), 'f', 2, 64) + "%</td> \n"
+
+										} else {
+
+											Cadena += "<td bgcolor=\"#EE0947\" height = \"50\"> Libre: " + strconv.FormatFloat(float64((ArregloDiscoEBRSize[Count] - 48) * 100) / float64(SizeExtendida), 'f', 2, 64) + "%</td> \n"
+
+										}
+
+									} else {
+
+										Cadena += "<td bgcolor=\"#FF9058\" height = \"30\"> Logica_ " + NombreParticion + ": " + strconv.FormatFloat(float64(ArregloEBR[CountEBR].SizeEBR * 100) / float64(SizeExtendida), 'f', 2, 64) + "%</td> \n"
+
+									}
+
+									LibreEBR = false
 
 								}
-
-								LibreEBR = false
 
 							}
 
 							if LibreEBR {
 
-								Cadena += "<td bgcolor=\"#EE0947\" height = \"50\"> Libre: " + strconv.FormatFloat(float64(10 * 100) / float64(SizeExtendida), 'f', 2, 64) + "%</td> \n"
+								if ArregloDiscoEBRSize[0] == 0 {
+
+									if ArregloDiscoEBRSize[Count] != 0 {
+
+										Cadena += "<td bgcolor=\"#EE0947\" height = \"50\"> Libre: " + strconv.FormatFloat(float64(ArregloDiscoEBRSize[Count + 1] * 100) / float64(SizeExtendida), 'f', 2, 64) + "%</td> \n"
+
+									}
+
+								} else {
+
+									if ArregloDiscoEBRSize[Count] != 0 {
+
+										Cadena += "<td bgcolor=\"#EE0947\" height = \"50\"> Libre: " + strconv.FormatFloat(float64(ArregloDiscoEBRSize[Count] * 100) / float64(SizeExtendida), 'f', 2, 64) + "%</td> \n"
+
+									}
+
+								}
 
 							}
 
@@ -453,18 +550,16 @@
 
 			}
 
+
 			if Libre {
 
-				Cadena += "<td bgcolor=\"#EE0947\" height = \"50\"> Libre: " + strconv.FormatFloat(float64(10 * 100) / float64(MBRAuxiliar.SizeMbr + 200), 'f', 2, 64) + "%</td> \n"
+				Cadena += "<td bgcolor=\"#FF3657\" height = \"50\"> Libre: " + strconv.FormatFloat(float64(ArregloDiscoSize[Contador] * 100) / float64(MBRAuxiliar.SizeMbr + 200), 'f', 2, 64) + "%</td> \n"
 
 			}
 
 			Libre = true
 
 		}
-
-		_ = ArregloDiscoSize
-		_ = ArregloDiscoEBRSize
 
 		Cadena += "</tr> \n </table> \n" +
 			">; \n" +

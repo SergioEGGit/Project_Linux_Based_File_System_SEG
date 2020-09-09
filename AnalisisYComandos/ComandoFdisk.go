@@ -2143,6 +2143,7 @@
 			}
 
 			color.Success.Println("Particion Creada Con Exito!")
+			fmt.Println("")
 
 		} else {
 
@@ -2410,6 +2411,7 @@
 				}
 
 				color.Success.Println("Particion Eliminada Con Exito!")
+				fmt.Println("")
 				break
 
 			} else if Cadena == "n" {
@@ -2772,7 +2774,6 @@
 
 			Metodos.LlenaDisco(int(EBRModificar.InicioEBR - InicioExtendida), 1)
 			Metodos.GeneraEspacios()
-			Metodos.MostrarEspacios()
 
 			for Contador := 0; Contador <= 200 - 1; Contador++ {
 
