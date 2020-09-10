@@ -6,11 +6,17 @@
 	import (
 		"../Metodos"
 		"../Variables"
+		"bytes"
+		"encoding/binary"
 		"fmt"
 		"github.com/asaskevich/govalidator"
 		"github.com/gookit/color"
+		"os"
+		"path/filepath"
 		"strconv"
 		"strings"
+		"time"
+		"unsafe"
 	)
 
 //-----------------------------------------------------Métodos----------------------------------------------------------
@@ -412,16 +418,50 @@
 	func ComandoMkfs() {
 		
 		//Variables
+		var Archivo string
+		var FechaActual time.Time
+		var NumeroEstructuras int64
+		var SizeParticion int64
+		var SizeArbolDirectorio int64
+		var SizeDetalleDirectorio int64
+		var SizeTablaInodos int64
+		var SizeBQ int64
+		var SizeBI int64
+		var SizeSuperBloque int64
+		var InicioParticion int64
 		var Bandera bool
+		var CeroBinario int8
+		var CeroByte *int8
+		var ArchivoDisco *os.File
+		var AvisoError error
+		var CadenaBinariaSuperBoot bytes.Buffer
+		var CadenaBinariaCero bytes.Buffer
+		var NombreArchivo []string
+		var SuperBoot Variables.SuperBloqueEstructura
+		var ParticionMontada Variables.MountEstructura
 
 		//Asignacion
+		Archivo = ""
+		NumeroEstructuras = 0
+		SizeParticion = 0
+		SizeArbolDirectorio = int64(unsafe.Sizeof(Variables.AVDEstructura{}))
+		SizeDetalleDirectorio = int64(unsafe.Sizeof(Variables.DDEstructura{}))
+		SizeTablaInodos = int64(unsafe.Sizeof(Variables.TablaInodoEstructura{}))
+		SizeBQ = int64(unsafe.Sizeof(Variables.BloquesEstructura{}))
+		SizeBI = int64(unsafe.Sizeof(Variables.BitacoraEstructura{}))
+		SizeSuperBloque = int64(unsafe.Sizeof(Variables.SuperBloqueEstructura{}))
+		InicioParticion = 0
 		Bandera = false
+		NombreArchivo = make([]string, 0)
+		ParticionMontada = Variables.MountEstructura{}
+		SuperBoot = Variables.SuperBloqueEstructura{}
 
 		//Verificar Particon Montada
 		for Contador := 0; Contador < len(Variables.ArregloParticionesMontadas); Contador++ {
 
 			if strings.EqualFold(Variables.MapComandos["id"], Variables.ArregloParticionesMontadas[Contador].IdentificadorMount) {
 
+				ParticionMontada = Variables.ArregloParticionesMontadas[Contador]
 				Bandera = true
 
 			}
@@ -430,7 +470,128 @@
 
 		if Bandera {
 
-			println("Hago Formateo")
+			//Obtener Nombre Disco
+			_, Archivo = filepath.Split(Metodos.Trim(ParticionMontada.RutaDiscoMount))
+			NombreArchivo = strings.Split(Archivo, ".")
+
+			if ParticionMontada.ParticionMount.SizePart != 0 {
+
+				SizeParticion = ParticionMontada.ParticionMount.SizePart
+				InicioParticion = ParticionMontada.ParticionMount.InicioPart
+
+
+			} else if ParticionMontada.EBRMount.SizeEBR != 0 {
+
+				SizeParticion = ParticionMontada.EBRMount.SizeEBR
+				InicioParticion = ParticionMontada.EBRMount.InicioEBR + int64(unsafe.Sizeof(Variables.EBREstructura{}))
+
+			}
+
+			//Formula Para Calcular Numero De Estructuras
+			NumeroEstructuras = (SizeParticion - (2 * SizeSuperBloque)) / (27 + SizeArbolDirectorio + SizeDetalleDirectorio + (5 * SizeTablaInodos + (20 * SizeBQ) + SizeBI))
+
+			//Feaha Actual
+			FechaActual = time.Now()
+
+			// Apuntadores
+			ApuntadorBitmapAVD := InicioParticion + SizeSuperBloque
+			ApuntadorAVD := ApuntadorBitmapAVD + NumeroEstructuras
+			ApuntadorBitmapDD := ApuntadorAVD + (SizeArbolDirectorio * NumeroEstructuras)
+			ApuntadorDD := ApuntadorBitmapDD + NumeroEstructuras
+			ApuntadorBitmapTI := ApuntadorDD + (SizeDetalleDirectorio * NumeroEstructuras)
+			ApuntadorTI := ApuntadorBitmapTI + (5 * NumeroEstructuras)
+			ApuntadorBitmapBQ := ApuntadorTI + (SizeTablaInodos * (5 * NumeroEstructuras))
+			ApuntadorBQ := ApuntadorBitmapBQ + (4 * (5 * NumeroEstructuras))
+			ApuntadorBI := ApuntadorBQ + (SizeBQ * (4 * (5 * NumeroEstructuras)))
+
+			println(NombreArchivo[0])
+
+			// Rellenar SuperBoot
+			// Nombre Disco
+			copy(SuperBoot.NombreDiscoSuperBloque[:], NombreArchivo[0])
+			// Cantidad De Estructura
+			SuperBoot.ArbolCountSuperBloque = NumeroEstructuras
+			SuperBoot.DetalleDirectorioCountSuperBloque = NumeroEstructuras
+			SuperBoot.InodosCountSuperBloque = 5 * NumeroEstructuras
+			SuperBoot.BloquesCountSuperBloque = 4 * (5 * NumeroEstructuras)
+			// Estructuras Libres
+			SuperBoot.ArbolFreeSuperBloque = NumeroEstructuras
+			SuperBoot.DetalleFreeSuperBloque = NumeroEstructuras
+			SuperBoot.InodosFreeSuperBloque = 5 * NumeroEstructuras
+			SuperBoot.BloquesFreeSuperBloque = 4 * (5 * NumeroEstructuras)
+			// Fechas
+			copy(SuperBoot.FechaCreacionSuperBloque[:], FechaActual.String())
+			copy(SuperBoot.FechaUltimoMontajeSuperBloque[:], FechaActual.String())
+			//Numero De Montajes
+			SuperBoot.MontajesSuperBloque = 1
+			//Apuntadores
+			SuperBoot.PBitmapArbolSuperBloque = ApuntadorBitmapAVD
+			SuperBoot.PArbolSuperBloque = ApuntadorAVD
+			SuperBoot.PBitmapDetalleSuperBloque = ApuntadorBitmapDD
+			SuperBoot.PDetalleSuperBloque = ApuntadorDD
+			SuperBoot.PBitmapTablaSuperBloque = ApuntadorBitmapTI
+			SuperBoot.PTablaSuperBloque = ApuntadorTI
+			SuperBoot.PBitmapBloquesSuperBloque = ApuntadorBitmapBQ
+			SuperBoot.PBloquesSuperBloque = ApuntadorBQ
+			SuperBoot.PLogSuperBloque = ApuntadorBI
+			// Tamaño Estructura
+			SuperBoot.ArbolSizeSuperBloque = SizeArbolDirectorio
+			SuperBoot.DetalleSizeSuperBloque = SizeDetalleDirectorio
+			SuperBoot.InodoSizeSuperBloque = SizeTablaInodos
+			SuperBoot.BloquesSizeSuperBloque = SizeBQ
+			// Free Bit
+			SuperBoot.ArbolFreeBitSuperBloque = ApuntadorBitmapAVD
+			SuperBoot.DetalleFreeBitSuperBloque = ApuntadorBitmapDD
+			SuperBoot.TablaFreeBitSuperBloque = ApuntadorBitmapTI
+			SuperBoot.BloquesFreeBitSuperBloque = ApuntadorBitmapBQ
+			// Magic Num
+			SuperBoot.MagicNumSuperBloque = 201801628
+
+			// Abrir Archivo Binario
+			ArchivoDisco, AvisoError = os.OpenFile(ParticionMontada.RutaDiscoMount, os.O_WRONLY, os.ModePerm)
+
+			if AvisoError != nil {
+
+				color.HEX("#de4843", false).Println("Error Al Leer El Disco")
+				color.HEX("#de4843", false).Println("El Disco Se Encuentra Corrupto")
+				fmt.Println("")
+
+			} else {
+
+				// Mover Puntero Inicio Archivo
+				_, _ = ArchivoDisco.Seek(0, 0)
+
+				// Mover Puntero Inicio Particion
+				_, _ = ArchivoDisco.Seek(InicioParticion, 0)
+
+				// Escribir SuperBoot
+
+				//Asignación
+				SuperBootDireccion := &SuperBoot
+
+				//Escribir Archivo
+				_ = binary.Write(&CadenaBinariaSuperBoot, binary.BigEndian, SuperBootDireccion)
+				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaSuperBoot.Bytes())
+
+				// Escribir Bitmap AVD
+
+				//Asignación
+				CeroBinario = 0
+				CeroByte = &CeroBinario
+
+				//Mover A Posicion Final
+				_, _ = ArchivoDisco.Seek(ApuntadorBitmapAVD, 0)
+
+				for Contador := 0; Contador < int(NumeroEstructuras); Contador++ {
+
+					_ = binary.Write(&CadenaBinariaCero, binary.BigEndian, CeroByte)
+					Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaCero.Bytes())
+
+				}
+
+				_ = ArchivoDisco.Close()
+
+			}
 
 		} else {
 

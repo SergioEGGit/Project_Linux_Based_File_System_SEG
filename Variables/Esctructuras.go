@@ -97,3 +97,63 @@
 		MagicNumSuperBloque int64
 
 	}
+	
+	//Arbol Virtual De Directorio 
+	type AVDEstructura struct {
+
+		FechaCreacionAVD [19]byte
+		NombreDirectorioAVD [16]byte
+		PArraySubDirectoriosAVD [6]int64
+		PDetalleDirectorioAVD int64
+		PARbolVirtualDirectorio int64
+		PropietarioAVD int64
+
+	}
+	
+	//Informacion Detalle De Directorio
+	type DDInformacionEstructura struct {
+
+		NombreArchivoDDInformacion [16]byte
+		PInodoArchivoDDInformacion int64
+		FechaCreacionArchivoDDInformacion [19]byte
+		FechaModificacionArchivoDDInformacion [19]byte
+
+	}
+
+	//Detalle De Directorio
+	type DDEstructura struct {
+
+		ArrayArchivosDD [5]DDInformacionEstructura
+		PDetalleDirectorioDD int64
+	}
+
+	//Tabla Inodos
+	type TablaInodoEstructura struct {
+
+		NumeroInodoTI int64
+		SizeArchivoTI int64
+		NumeroBloquesTI int64
+		ArrayBloquesTI [4]int64
+		PTabalInodosTI int64
+		PropietarioTI int64
+
+	}
+
+	//Bloques
+	type BloquesEstructura struct {
+
+		InformacionBQ [25]byte
+
+	}
+
+	//Bitacora
+	type BitacoraEstructura struct {
+
+		TipoOperacionBT [16]byte
+		TipoArchivoDirectorioBT int64
+		NombreArchivoDirectorioBT [16]byte
+		ContenidoBT [100]byte
+		FechaTransaccionBT [19]byte
+
+	}
+
