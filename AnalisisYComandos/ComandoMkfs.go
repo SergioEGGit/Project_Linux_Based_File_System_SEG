@@ -432,13 +432,18 @@
 		var Bandera bool
 		var CeroBinario int8
 		var CeroByte *int8
+		var UnoBinario int8
+		var UnoByte *int8
 		var ArchivoDisco *os.File
 		var AvisoError error
 		var CadenaBinariaSuperBoot bytes.Buffer
 		var CadenaBinariaCero bytes.Buffer
+		var CadenaBinariaUno bytes.Buffer
+		var CadenaBinariaAVD bytes.Buffer
 		var NombreArchivo []string
 		var SuperBoot Variables.SuperBloqueEstructura
 		var ParticionMontada Variables.MountEstructura
+		var AVDAuxiliar Variables.AVDEstructura
 
 		//Asignacion
 		Archivo = ""
@@ -455,6 +460,7 @@
 		NombreArchivo = make([]string, 0)
 		ParticionMontada = Variables.MountEstructura{}
 		SuperBoot = Variables.SuperBloqueEstructura{}
+		AVDAuxiliar = Variables.AVDEstructura{}
 
 		//Verificar Particon Montada
 		for Contador := 0; Contador < len(Variables.ArregloParticionesMontadas); Contador++ {
@@ -503,8 +509,6 @@
 			ApuntadorBitmapBQ := ApuntadorTI + (SizeTablaInodos * (5 * NumeroEstructuras))
 			ApuntadorBQ := ApuntadorBitmapBQ + (4 * (5 * NumeroEstructuras))
 			ApuntadorBI := ApuntadorBQ + (SizeBQ * (4 * (5 * NumeroEstructuras)))
-
-			println(NombreArchivo[0])
 
 			// Rellenar SuperBoot
 			// Nombre Disco
@@ -579,17 +583,50 @@
 				CeroBinario = 0
 				CeroByte = &CeroBinario
 
+				UnoBinario = 1
+				UnoByte = &UnoBinario
+
 				//Mover A Posicion Final
 				_, _ = ArchivoDisco.Seek(ApuntadorBitmapAVD, 0)
 
 				for Contador := 0; Contador < int(NumeroEstructuras); Contador++ {
 
-					_ = binary.Write(&CadenaBinariaCero, binary.BigEndian, CeroByte)
-					Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaCero.Bytes())
+					if Contador == 0 {
+
+						_ = binary.Write(&CadenaBinariaUno, binary.BigEndian, UnoByte)
+						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaUno.Bytes())
+
+					} else {
+
+						_ = binary.Write(&CadenaBinariaCero, binary.BigEndian, CeroByte)
+						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaCero.Bytes())
+
+					}
 
 				}
 
+				// Escribir AVD Root
+				// Rellenar AVD
+				copy(AVDAuxiliar.FechaCreacionAVD[:], FechaActual.String())
+				copy(AVDAuxiliar.NombreDirectorioAVD[:], "/")
+				AVDAuxiliar.PDetalleDirectorioAVD = 0
+				copy(AVDAuxiliar.PropietarioAVD[:], "root")
+
+				// Mover Puntero
+				_, _ = ArchivoDisco.Seek(SuperBoot.PArbolSuperBloque + (0 * SizeArbolDirectorio), 0)
+
+				//Asignación
+				AVDDireccion := &AVDAuxiliar
+				
+
+				//Escribir Archivo
+				_ = binary.Write(&CadenaBinariaAVD, binary.BigEndian, AVDDireccion)
+				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaAVD.Bytes())
+
 				_ = ArchivoDisco.Close()
+				
+				color.Success.Println("Particion Formateada Con Exito")
+				fmt.Println("")
 
 			}
 

@@ -105,8 +105,8 @@
 		NombreDirectorioAVD [16]byte
 		PArraySubDirectoriosAVD [6]int64
 		PDetalleDirectorioAVD int64
-		PARbolVirtualDirectorio int64
-		PropietarioAVD int64
+		PArbolVirtualDirectorio int64
+		PropietarioAVD [16]byte
 
 	}
 	

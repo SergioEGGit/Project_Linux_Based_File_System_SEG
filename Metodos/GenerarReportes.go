@@ -4,12 +4,12 @@
     package Metodos
 
     import (
-	    "../Variables"
-	    "bufio"
-	    "fmt"
-	    "log"
-	    "os"
-	    "os/exec"
+        "../Variables"
+        "bufio"
+        "fmt"
+        "github.com/gookit/color"
+        "os"
+        "os/exec"
     )
 
 //-----------------------------------------Métodos-------------------------------------------------
@@ -37,7 +37,8 @@
 
             if AvisoError != nil {
 
-                fmt.Print("Error Al Generar El Archivo")
+                color.HEX("#de4843", false).Println("Error Al Generar El Reporte")
+                fmt.Println("")
 
             }
 
@@ -48,6 +49,22 @@
             BanderaOs = true
 
         } else if Variables.SistemaOperativo == "linux"  {
+
+            //Abrir Archivo Y Generar Try Catch Error
+            RutaArchivo = Directorio + NombreReporte + ".txt"
+            Archivo, AvisoError = os.Create(RutaArchivo)
+
+            //Catch Error
+
+            if AvisoError != nil {
+
+                color.HEX("#de4843", false).Println("Error Al Generar El Reporte")
+                fmt.Println("")
+
+            }
+
+            //Cerrar Archivo
+            defer Archivo.Close()
 
             BanderaOs = true
 
@@ -69,7 +86,8 @@
 
             if AvisoError != nil {
 
-                fmt.Print("Error Al Escribir El Archivo")
+                color.HEX("#de4843", false).Println("Error Al Generar El Reporte")
+                fmt.Println("")
 
             }
 
@@ -77,7 +95,8 @@
 
         } else {
 
-            print("Sistema Operativo No Soportado")
+            color.HEX("#de4843", false).Println("Sistema Operativo No Soportado")
+            fmt.Println("")
 
         }
     }
@@ -122,37 +141,90 @@
 
                 if AvisoError != nil {
 
-                    fmt.Println("Error Al Generar El Reporte")
+                    color.HEX("#de4843", false).Println("Error Al Generar El Reporte")
                     fmt.Println("")
 
                 } else {
+
+                    color.Success.Println("Reporte Generado Con Exito")
+                    fmt.Println("")
 
                     GvizCommand = FileOutput + " &"
                     Command = exec.Command("cmd", "/C", GvizCommand)
                     Command.Stdout = os.Stdout
                     AvisoError = Command.Run()
 
+                    if AvisoError != nil {
+
+                        color.HEX("#de4843", false).Println("Error Al Abrir La Imagen")
+                        fmt.Println("")
+
+                    }
+
                 }
 
             } else {
+
+                color.Success.Println("Reporte Generado Con Exito")
+                fmt.Println("")
 
                 GvizCommand = FileOutput + " &"
                 Command = exec.Command("cmd", "/C", GvizCommand)
                 Command.Stdout = os.Stdout
                 AvisoError = Command.Run()
 
+                if AvisoError != nil {
+
+                    color.HEX("#de4843", false).Println("Error Al Abrir La Imagen")
+                    fmt.Println("")
+
+                }
+
             }
 
         } else if Variables.SistemaOperativo == "linux"  {
 
-            Command = exec.Command("clear")
+            RutaGraphviz = "dot "
+            Parametros = "-Tpng -o "
+            FileInput = " " + Directorio + NombreReporte + ".txt"
+            FileOutput = Directorio + Archivo + " "
+
+            GvizCommand = RutaGraphviz + Parametros + FileOutput + FileInput
+
+            Command = exec.Command("/bin/bash", "-c", GvizCommand)
             Command.Stdout = os.Stdout
+            Command.Stderr = os.Stderr
             AvisoError = Command.Run()
-            log.Printf("Command finished with error: %v", AvisoError)
+
+            //Catch Error
+            if AvisoError != nil {
+
+                color.HEX("#de4843", false).Println("Error Al Generar El Reporte")
+                fmt.Println("")
+
+            } else {
+
+                color.Success.Println("Reporte Generado Con Exito")
+                fmt.Println("")
+
+                GvizCommand = FileOutput + " &"
+                Command = exec.Command("/bin/bash", "-c", GvizCommand)
+                Command.Stdout = os.Stdout
+                AvisoError = Command.Run()
+
+                if AvisoError != nil {
+
+                    color.HEX("#de4843", false).Println("Error Al Abrir La Imagen")
+                    fmt.Println("")
+
+                }
+
+            }
 
         } else {
 
-            print("Sistema Operativo No Soportado")
+            color.HEX("#de4843", false).Println("Sistema Operativo No Soportado")
+            fmt.Println("")
 
         }
     }

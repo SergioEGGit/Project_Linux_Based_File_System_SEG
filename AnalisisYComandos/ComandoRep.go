@@ -38,6 +38,7 @@
 		ContadorPath = 0
 		ContadorId = 0
 		ContadorRuta = 0
+		Variables.MapComandos = make(map[string]string)
 
 		//Verificación De Parametros
 		if len(Variables.ArregloComandos) > 1 {
@@ -55,13 +56,11 @@
 
 				case "nombre":
 
-					if ContadorNombre == 0 {
+				  if ContadorNombre == 0 {
 
 						if len(ArregloParametros) > 1 {
 
-							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
-
 							Variables.MapComandos["nombre"] = Metodos.Trim(ArregloParametros[1])
 							Nombre = true
 
@@ -263,6 +262,7 @@
 		var InicioExtendida int64
 		var MBRAuxiliar Variables.MBREstructura
 		var ArregloEBR []Variables.EBREstructura
+		var ParticionMontada Variables.MountEstructura
 
 		//Asignacion
 		Bandera = false
@@ -270,6 +270,7 @@
 		ExisteExtendida = false
 		InicioExtendida = 0
 		ArregloEBR = make([]Variables.EBREstructura, 0)
+		ParticionMontada = Variables.MountEstructura{}
 
 		// Verificar Si Existe Id
 		for Contador := 0; Contador < len(Variables.ArregloParticionesMontadas); Contador++ {
@@ -278,6 +279,7 @@
 
 				Bandera = true
 				NumeroMount = Contador
+				ParticionMontada = Variables.ArregloParticionesMontadas[Contador]
 
 			}
 
@@ -332,7 +334,6 @@
 
 				}
 
-
 			} else if Variables.MapComandos["nombre"] == "disk" {
 
 				Bandera = false
@@ -380,7 +381,15 @@
 
 				}
 
-			} else {
+			} else if Variables.MapComandos["nombre"] == "sb" {
+
+				Reportes.ReporteSuperBoot(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+			} else if Variables.MapComandos["nombre"] == "bm_arbdir" {
+
+				Reportes.ReporteBitmapAVD(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+		    } else {
 
 				color.HEX("#de4843", false).Println("No Existe El Reporte Indicado")
 				fmt.Println("")

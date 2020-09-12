@@ -9,15 +9,17 @@
 		"bytes"
 		"fmt"
 		"github.com/gookit/color"
+		"os"
 		"path/filepath"
 		"sort"
 		"strconv"
 		"strings"
+		"unsafe"
 	)
 
 //----------------------------------------------------Métodos-----------------------------------------------------------
 
-	//Reporte MBR
+	// Reporte MBR
 
 	func ReporteMBR(MBRAuxiliar Variables.MBREstructura, Ruta string, ArregloEBR []Variables.EBREstructura) {
 
@@ -289,6 +291,8 @@
 		}
 
 	}
+
+	// Reporte Disk
 
 	func ReporteDisco(MBRAuxiliar Variables.MBREstructura, Ruta string, ArregloEBR []Variables.EBREstructura) {
 
@@ -582,5 +586,541 @@
 			fmt.Println("")
 
 		}
+
+	}
+
+	// Reporte SuperBoot
+
+	func ReporteSuperBoot(ParticionMontada Variables.MountEstructura, Ruta string) {
+
+		//Variables
+		var Cadena string
+		var Directorio string
+		var Archivo string
+		var NombreDisco string
+		var FechaCreacion string
+		var FechaModificacion string
+		var Path bool
+		var Bandera bool
+		var SBAuxiliar Variables.SuperBloqueEstructura
+		var Particion Variables.MountEstructura
+
+		//Asignacion
+		Cadena = ""
+		Directorio = ""
+		Archivo = ""
+		Path = false
+		Bandera = false
+		SBAuxiliar = Variables.SuperBloqueEstructura{}
+		Particion = ParticionMontada
+
+		// Verificar SuperBloque
+		if Particion.ParticionMount.SizePart != 0 {
+
+			// Verificar SuperBloque
+			SBAuxiliar, Bandera = Metodos.LeerArchivoBinarioSB(Metodos.Trim(Particion.RutaDiscoMount), Particion.ParticionMount.InicioPart)
+
+		} else if Particion.EBRMount.SizeEBR != 0 {
+
+			// Verificar SuperBloque
+			SBAuxiliar, Bandera = Metodos.LeerArchivoBinarioSB(Metodos.Trim(Particion.RutaDiscoMount), int64(int(Particion.EBRMount.InicioEBR) + int(unsafe.Sizeof(Variables.EBREstructura{}))))
+
+		}
+
+		if Bandera {
+
+			if SBAuxiliar.MagicNumSuperBloque != 0 {
+
+				NombreDisco = string(bytes.Trim(SBAuxiliar.NombreDiscoSuperBloque[:], "\x00"))
+				FechaCreacion = string(bytes.Trim(SBAuxiliar.FechaCreacionSuperBloque[:], "\x00"))
+				FechaModificacion = string(bytes.Trim(SBAuxiliar.FechaUltimoMontajeSuperBloque[:], "\x00"))
+
+				// Comenzar Reporte
+				Cadena = "digraph Reporte_SB { \n" +
+					"node [shape = plaintext] \n" +
+					"some_node [ \n" +
+					"label =< \n" +
+					"<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"> \n" +
+					"<tr> \n" +
+					"<td bgcolor = \" #FFA07A\" colspan=\" 2\">" + "Reporte_SuperBoot" + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#E6E6FA\">" + "Campo Nombre" + "</td> \n" +
+					"<td bgcolor=\"#E6E6FA\">" + "Campo Valor" + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Nombre_Disco" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + NombreDisco + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Arbol_Directorio_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.ArbolCountSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Detalle_Directorio_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.DetalleDirectorioCountSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Inodos_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.InodosCountSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Bloques_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.BloquesCountSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Arbol_Directorio_Free" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.ArbolFreeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Detalle_Directorio_Free" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.DetalleFreeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Inodos_Free" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.InodosFreeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Bloques_Free" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.BloquesFreeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Fecha_Creacion" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + FechaCreacion + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Fecha_Ultimo_Montaje" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + FechaModificacion + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Montaje_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.MontajesSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_BitMap_Arbol_Directorio" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBitmapArbolSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Arbol_Directorio" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PArbolSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_BitMap_Detalle_Directorio" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBitmapDetalleSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Detalle_Directorio" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PDetalleSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_BitMap_Tabla_Inodos" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBitmapTablaSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Tabla_Inodos" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PTablaSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_BitMap_Bloques" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBitmapBloquesSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Bloques" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBloquesSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Bitacora" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PLogSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Arbol_Directorio_Size" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.ArbolSizeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Detalle_Directorio_Size" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.DetalleSizeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Inodos_Size" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.InodoSizeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Bloques_Size" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.BloquesSizeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Arbol_Directorio_Free_Bit" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.ArbolFreeBitSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Detalle_Directorio_Free_Bit" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.DetalleFreeBitSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Inodos_Free_Bit" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.TablaFreeBitSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Bloques_Free_Bit" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.BloquesFreeBitSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Magic_Num" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.MagicNumSuperBloque)) + "</td> \n" +
+					"</tr> \n"
+
+				Cadena +=	"</table>> \n" +
+					"]; \n" +
+					"}"
+
+				// Obtener Directorio
+				Directorio, Archivo = filepath.Split(Metodos.Trim(Ruta))
+
+				Path = Metodos.VerificarYCrearRutas(Directorio)
+
+				if Path {
+
+					Metodos.GenerarArchivoTxt("Reporte_SB", Cadena, Directorio)
+					Metodos.GenerarReporte("Reporte_SB", Directorio, Archivo)
+
+				} else {
+
+					color.HEX("#de4843", false).Println("Error No Se Genero El Reporte Con Exito")
+					fmt.Println("")
+
+				}
+
+			} else {
+
+				color.HEX("#de4843", false).Println("La Particion Indicada Aun No Posee El Formato LWH")
+				fmt.Println("")
+
+			}
+
+		} else {
+
+			color.HEX("#de4843", false).Println("Error Al Leer El SuperBloque")
+			fmt.Println("")
+
+		}
+
+	}
+
+	// Reporte Bitmpa Arbol Vitual Directorio
+
+	func ReporteBitmapAVD(ParticionMontada Variables.MountEstructura, Ruta string) {
+
+		//Variables
+		var Directorio string
+		var ContadorAuxiliar int
+		var Path bool
+		var Bandera bool
+		var ArregloBytes []byte
+		var ArchivoFisico *os.File
+		var AvisoError error
+		var SBAuxiliar Variables.SuperBloqueEstructura
+		var Particion Variables.MountEstructura
+
+		//Asignacion
+		ContadorAuxiliar = 1
+		Directorio = ""
+		Path = false
+		Bandera = false
+		SBAuxiliar = Variables.SuperBloqueEstructura{}
+		Particion = ParticionMontada
+
+		// Verificar SuperBloque
+		if Particion.ParticionMount.SizePart != 0 {
+
+			// Verificar SuperBloque
+			SBAuxiliar, Bandera = Metodos.LeerArchivoBinarioSB(Metodos.Trim(Particion.RutaDiscoMount), Particion.ParticionMount.InicioPart)
+
+		} else if Particion.EBRMount.SizeEBR != 0 {
+
+			// Verificar SuperBloque
+			SBAuxiliar, Bandera = Metodos.LeerArchivoBinarioSB(Metodos.Trim(Particion.RutaDiscoMount), int64(int(Particion.EBRMount.InicioEBR) + int(unsafe.Sizeof(Variables.EBREstructura{}))))
+
+		}
+
+		if Bandera {
+
+			if SBAuxiliar.MagicNumSuperBloque != 0 {
+
+				ArregloBytes, Bandera = Metodos.LeerArchivoBinarioBitmapAVD(Particion.RutaDiscoMount, SBAuxiliar.PBitmapArbolSuperBloque, int(SBAuxiliar.ArbolCountSuperBloque))
+
+				// Obtener Directorio
+				Directorio, _ = filepath.Split(Metodos.Trim(Ruta))
+
+				Path = Metodos.VerificarYCrearRutas(Directorio)
+
+				if Path {
+
+					ArchivoFisico, AvisoError = os.Create(Ruta)
+
+					if AvisoError != nil {
+
+						color.HEX("#de4843", false).Println("Error Al Generar Reporte")
+						fmt.Println("")
+
+					} else {
+
+						for Contador := 0; Contador < len(ArregloBytes); Contador++ {
+
+							if ContadorAuxiliar == 20 {
+
+									_, _ = ArchivoFisico.WriteString(strconv.Itoa(int(ArregloBytes[Contador])) + "\n")
+									ContadorAuxiliar = 0
+
+							} else {
+
+								if Contador == len(ArregloBytes) - 1 {
+
+									_, _ = ArchivoFisico.WriteString(strconv.Itoa(int(ArregloBytes[Contador])))
+
+								} else {
+
+									_, _ = ArchivoFisico.WriteString(strconv.Itoa(int(ArregloBytes[Contador])) + " | ")
+
+								}
+
+							}
+
+							ContadorAuxiliar++
+
+						}
+
+						ArchivoFisico.Close()
+
+					}
+
+				}
+
+
+			} else {
+
+				color.HEX("#de4843", false).Println("La Particion Indicada Aun No Posee El Formato LWH")
+				fmt.Println("")
+
+			}
+
+		} else {
+
+			color.HEX("#de4843", false).Println("Error Al Leer El SuperBloque")
+			fmt.Println("")
+
+		}
+
+	}
+	
+	// Reporte Arbol Completo
+	
+	func ReporteArbolCompletoAVD(ParticionMontada Variables.MountEstructura, Ruta string) {
+
+		//Variables
+		var Directorio string
+		var Archivo string
+		var Cadena string
+		var Path bool
+		var Bandera bool
+		var SBAuxiliar Variables.SuperBloqueEstructura
+		var Particion Variables.MountEstructura
+
+		//Asignacion
+		Cadena = ""
+		Directorio = ""
+		Archivo = ""
+		Path = false
+		Bandera = false
+		SBAuxiliar = Variables.SuperBloqueEstructura{}
+		Particion = ParticionMontada
+
+		// Verificar SuperBloque
+		if Particion.ParticionMount.SizePart != 0 {
+
+			// Verificar SuperBloque
+			SBAuxiliar, Bandera = Metodos.LeerArchivoBinarioSB(Metodos.Trim(Particion.RutaDiscoMount), Particion.ParticionMount.InicioPart)
+
+		} else if Particion.EBRMount.SizeEBR != 0 {
+
+			// Verificar SuperBloque
+			SBAuxiliar, Bandera = Metodos.LeerArchivoBinarioSB(Metodos.Trim(Particion.RutaDiscoMount), int64(int(Particion.EBRMount.InicioEBR) + int(unsafe.Sizeof(Variables.EBREstructura{}))))
+
+		}
+
+		if Bandera {
+
+			if SBAuxiliar.MagicNumSuperBloque != 0 {
+
+
+				// Comenzar Reporte
+				Cadena = "digraph Reporte_SB { \n" +
+					"node [shape = plaintext] \n" +
+					"some_node [ \n" +
+					"label =< \n" +
+					"<table border=\"0\" cellborder=\"1\" cellspacing=\"0\"> \n" +
+					"<tr> \n" +
+					"<td bgcolor = \" #FFA07A\" colspan=\" 2\">" + "Reporte_SuperBoot" + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#E6E6FA\">" + "Campo Nombre" + "</td> \n" +
+					"<td bgcolor=\"#E6E6FA\">" + "Campo Valor" + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Nombre_Disco" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "" + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Arbol_Directorio_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.ArbolCountSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Detalle_Directorio_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.DetalleDirectorioCountSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Inodos_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.InodosCountSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Bloques_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.BloquesCountSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Arbol_Directorio_Free" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.ArbolFreeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Detalle_Directorio_Free" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.DetalleFreeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Inodos_Free" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.InodosFreeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Bloques_Free" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.BloquesFreeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Fecha_Creacion" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "FechaCreacion" + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Fecha_Ultimo_Montaje" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "FechaModificacion" + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Montaje_Count" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.MontajesSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_BitMap_Arbol_Directorio" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBitmapArbolSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Arbol_Directorio" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PArbolSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_BitMap_Detalle_Directorio" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBitmapDetalleSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Detalle_Directorio" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PDetalleSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_BitMap_Tabla_Inodos" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBitmapTablaSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Tabla_Inodos" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PTablaSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_BitMap_Bloques" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBitmapBloquesSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Bloques" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PBloquesSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Apuntador_Bitacora" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.PLogSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Arbol_Directorio_Size" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.ArbolSizeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Detalle_Directorio_Size" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.DetalleSizeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Inodos_Size" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.InodoSizeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Bloques_Size" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.BloquesSizeSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Arbol_Directorio_Free_Bit" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.ArbolFreeBitSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Detalle_Directorio_Free_Bit" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.DetalleFreeBitSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Inodos_Free_Bit" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.TablaFreeBitSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Bloques_Free_Bit" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.BloquesFreeBitSuperBloque)) + "</td> \n" +
+					"</tr> \n" +
+					"<tr> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + "Magic_Num" + "</td> \n" +
+					"<td bgcolor=\"#ADD8E6\">" + strconv.Itoa(int(SBAuxiliar.MagicNumSuperBloque)) + "</td> \n" +
+					"</tr> \n"
+
+				Cadena +=	"</table>> \n" +
+					"]; \n" +
+					"}"
+
+				// Obtener Directorio
+				Directorio, Archivo = filepath.Split(Metodos.Trim(Ruta))
+
+				Path = Metodos.VerificarYCrearRutas(Directorio)
+
+				if Path {
+
+					Metodos.GenerarArchivoTxt("Reporte_ArbolVirtual", Cadena, Directorio)
+					Metodos.GenerarReporte("Reporte_ArbolVirtual", Directorio, Archivo)
+
+				} else {
+
+					color.HEX("#de4843", false).Println("Error No Se Genero El Reporte Con Exito")
+					fmt.Println("")
+
+				}
+
+
+			} else {
+
+				color.HEX("#de4843", false).Println("La Particion Indicada Aun No Posee El Formato LWH")
+				fmt.Println("")
+
+			}
+
+		} else {
+
+			color.HEX("#de4843", false).Println("Error Al Leer El SuperBloque")
+			fmt.Println("")
+
+		}
+
 
 	}

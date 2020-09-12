@@ -209,14 +209,13 @@
 				if strings.EqualFold(Nombre, NombreArray1) {
 
 					ExisteNombre = true
-
-					if MBRAuxiliar.Particion1MBR.TipoPart == 'e' {
-
-						InicioExtendida = MBRAuxiliar.Particion1MBR.InicioPart
-
-					}
-
 					PartAuxiliar = MBRAuxiliar.Particion1MBR
+
+				}
+
+				if MBRAuxiliar.Particion1MBR.TipoPart == 'e' {
+
+					InicioExtendida = MBRAuxiliar.Particion1MBR.InicioPart
 
 				}
 
@@ -224,9 +223,10 @@
 
 			if MBRAuxiliar.Particion2MBR.SizePart != 0 {
 
-				if strings.EqualFold(Nombre, NombreArray2)  {
+				if strings.EqualFold(Nombre, NombreArray2) {
 
 					ExisteNombre = true
+					PartAuxiliar = MBRAuxiliar.Particion2MBR
 
 				}
 
@@ -236,15 +236,14 @@
 
 				}
 
-				PartAuxiliar = MBRAuxiliar.Particion2MBR
-
 			}
 
 			if MBRAuxiliar.Particion3MBR.SizePart != 0 {
 
-				if strings.EqualFold(Nombre, NombreArray3)   {
+				if strings.EqualFold(Nombre, NombreArray3) {
 
 					ExisteNombre = true
+					PartAuxiliar = MBRAuxiliar.Particion3MBR
 
 				}
 
@@ -254,15 +253,14 @@
 
 				}
 
-				PartAuxiliar = MBRAuxiliar.Particion3MBR
-
 			}
 
 			if MBRAuxiliar.Particion4MBR.SizePart != 0 {
 
-				if strings.EqualFold(Nombre, NombreArray4)   {
+				if strings.EqualFold(Nombre, NombreArray4) {
 
 					ExisteNombre = true
+					PartAuxiliar = MBRAuxiliar.Particion4MBR
 
 				}
 
@@ -271,8 +269,6 @@
 					InicioExtendida = MBRAuxiliar.Particion4MBR.InicioPart
 
 				}
-
-				PartAuxiliar = MBRAuxiliar.Particion4MBR
 
 			}
 

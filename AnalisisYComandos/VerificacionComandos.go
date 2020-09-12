@@ -14,6 +14,9 @@
 
 	func AnalisisComando(CadenaComando string) {
 
+		//Limpiar Arreglo Comandos
+		Variables.ArregloComandos = make([]string, 0)
+
 		//Asignaciones
 		CadenaComando = Metodos.Trim(CadenaComando)
 		Variables.ArregloComandos = Metodos.SplitComando(CadenaComando)

@@ -386,6 +386,7 @@
 
 				color.HEX("#de4843", false).Println("Error Al Leer El Archivo")
 				fmt.Println("")
+				Archivo.Close()
 				return MBRAuxiliar, false
 
 			} else {
@@ -667,12 +668,120 @@
 
 				color.HEX("#de4843", false).Println("Error Al Leer El Archivo")
 				fmt.Println("")
+				Archivo.Close()
 				return EBRAuxiliar, false
 
 			} else {
 
 				Archivo.Close()
 				return EBRAuxiliar, true
+
+			}
+
+		}
+
+	}
+
+	func LeerArchivoBinarioSB(Ruta string, PosicionInicial int64) (Variables.SuperBloqueEstructura, bool) {
+
+		//Variables
+		var Archivo *os.File
+		var AvisoError error
+		var SBAuxiliar Variables.SuperBloqueEstructura
+		var SizeSB int
+		var ArregloBytes []byte
+		var Decodificador *bytes.Buffer
+
+		//Abrir El Archivo
+		Archivo, AvisoError = os.Open(Ruta)
+
+		//Catch Error
+		if AvisoError != nil {
+
+			color.HEX("#de4843", false).Println("Error Al Abrir El Archivo")
+			fmt.Println("")
+			return SBAuxiliar, false
+
+		} else {
+
+			//Estructura Auxiliar
+			SBAuxiliar = Variables.SuperBloqueEstructura{}
+			SBDireccion := &SBAuxiliar
+
+			//Obtener Size SB
+			SizeSB = int(unsafe.Sizeof(Variables.SuperBloqueEstructura{}))
+
+			//Mover Puntero
+			_, _ = Archivo.Seek(PosicionInicial, 0)
+
+			//Obtener Arreglo De Bytes
+			ArregloBytes = LeerArchivoBinario(Archivo, SizeSB)
+
+			//Decodificar Binario
+			Decodificador = bytes.NewBuffer(ArregloBytes)
+
+			AvisoError = binary.Read(Decodificador, binary.BigEndian, SBDireccion)
+
+			if AvisoError != nil {
+
+				color.HEX("#de4843", false).Println("Error Al Leer El Archivo")
+				fmt.Println("")
+				Archivo.Close()
+				return SBAuxiliar, false
+
+			} else {
+
+				Archivo.Close()
+				return SBAuxiliar, true
+
+			}
+
+		}
+
+	}
+
+	func LeerArchivoBinarioBitmapAVD(Ruta string, PosicionInicial int64, Size int) ([]byte, bool) {
+
+		//Variables
+		var Archivo *os.File
+		var AvisoError error
+		var ArregloBytes []byte
+		var Decodificador *bytes.Buffer
+
+		//Abrir El Archivo
+		Archivo, AvisoError = os.Open(Ruta)
+
+		//Catch Error
+		if AvisoError != nil {
+
+			color.HEX("#de4843", false).Println("Error Al Abrir El Archivo")
+			fmt.Println("")
+			return ArregloBytes, false
+
+		} else {
+
+			//Mover Puntero
+			_, _ = Archivo.Seek(PosicionInicial, 0)
+
+			//Obtener Arreglo De Bytes
+			ArregloBytes = LeerArchivoBinario(Archivo, Size)
+
+			//Decodificar Binario
+			Decodificador = bytes.NewBuffer(ArregloBytes)
+
+			AvisoError = binary.Read(Decodificador, binary.BigEndian, ArregloBytes)
+
+			if AvisoError != nil {
+
+				color.HEX("#de4843", false).Println("Error Al Leer El Archivo")
+				fmt.Println("")
+				Archivo.Close()
+				return ArregloBytes, false
+
+			} else {
+
+				Archivo.Close()
+				return ArregloBytes, true
 
 			}
 
