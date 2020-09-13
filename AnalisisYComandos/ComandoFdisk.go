@@ -206,6 +206,7 @@
 
 						if len(ArregloParametros) > 1 {
 
+							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 
 							Variables.MapComandos["name"] = Metodos.Trim(ArregloParametros[1])
@@ -460,6 +461,7 @@
 
 						if len(ArregloParametros) > 1 {
 
+							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 
 							Variables.MapComandos["name"] = Metodos.Trim(ArregloParametros[1])
@@ -752,6 +754,7 @@
 
 						if len(ArregloParametros) > 1 {
 
+							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 
 							Variables.MapComandos["name"] = Metodos.Trim(ArregloParametros[1])

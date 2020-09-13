@@ -88,6 +88,7 @@
 
 						if len(ArregloParametros) > 1 {
 
+							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 
 							Variables.MapComandos["name"] = Metodos.Trim(ArregloParametros[1])
@@ -432,11 +433,11 @@
 
 		if ExisteNombre {
 
-			CodigoPart = GenerarIdentificadorDisco()
+			if !EstaMontada {
 
-			if CodigoPart != "" {
+				CodigoPart = GenerarIdentificadorDisco()
 
-				if !EstaMontada {
+				if CodigoPart != "" {
 
 					if EBRAuxiliar.SizeEBR != 0 {
 
@@ -462,19 +463,22 @@
 					color.Success.Println("Particion Montada Con Exito!")
 					fmt.Println("")
 
+
 				} else {
 
-					color.HEX("#de4843", false).Println("Error La Particion Ya Se Encuentra Montada")
+					color.HEX("#de4843", false).Println("Error No Existe Espacio Para Montar La Particion")
 					fmt.Println("")
 
 				}
 
+
 			} else {
 
-				color.HEX("#de4843", false).Println("Error No Existe Espacio Para Montar La Particion")
+				color.HEX("#de4843", false).Println("Error La Particion Ya Se Encuentra Montada")
 				fmt.Println("")
 
 			}
+
 
 		} else {
 
@@ -493,7 +497,7 @@
 			"Lista De Particiones Montadas")
 		fmt.Println("")
 		color.HEX("#2194C6", false).Println(" ------ID------", "--------------------" +
-			"Ruta--------------------", "------------Nombre------------")
+			"-------Ruta-----------------------------", "------------Nombre------------")
 
 		for Contador := 0; Contador < len(Variables.ArregloParticionesMontadas); Contador++ {
 
@@ -501,7 +505,7 @@
 				Variables.ArregloParticionesMontadas[Contador].IdentificadorMount,
 				LlenarLista(len(Variables.ArregloParticionesMontadas[Contador].IdentificadorMount), 13),
 				Variables.ArregloParticionesMontadas[Contador].RutaDiscoMount,
-				LlenarLista(len(Variables.ArregloParticionesMontadas[Contador].RutaDiscoMount), 43),
+				LlenarLista(len(Variables.ArregloParticionesMontadas[Contador].RutaDiscoMount), 59),
 				Variables.ArregloParticionesMontadas[Contador].NombreMount)
 
 		}

@@ -79,6 +79,16 @@
         return true, LineasArchivo
     }
 
+    func LimpiarArreglo() {
+
+        for Contador := 0; Contador < len(Variables.ArregloArchivo); Contador++ {
+
+            Variables.ArregloArchivo[Contador] = ""
+
+        }
+
+    }
+
     func RecuperarLDComando(ArregloAuxiliar []string) {
 
         //Variables
@@ -88,10 +98,11 @@
         //Asignación
         Final = false
         ContadorAuxiliar = -1
-        Variables.ArregloArchivo = make([]string, 0)
+
+        //Limpiar Arreglo
+        LimpiarArreglo()
 
         //Comienza Recuperación
-
         for Con := 0; Con < len(ArregloAuxiliar); Con++ {
 
             if Trim(ArregloAuxiliar[Con]) != "" {
@@ -99,25 +110,24 @@
                 if !Final {
 
                     ContadorAuxiliar++
-                    Variables.ArregloArchivo = append(Variables.ArregloArchivo, Trim(ArregloAuxiliar[Con]))
+                    Variables.ArregloArchivo[ContadorAuxiliar] = Trim(ArregloAuxiliar[Con])
 
                 } else {
 
                     if BuscarPrefijo(Trim(ArregloAuxiliar[Con])) {
 
-                        Variables.ArregloArchivo = append(Variables.ArregloArchivo, Variables.ArregloArchivo[ContadorAuxiliar] + " " + Trim(ArregloAuxiliar[Con]))
+                        Variables.ArregloArchivo[ContadorAuxiliar] = Variables.ArregloArchivo[ContadorAuxiliar] + " " + Trim(ArregloAuxiliar[Con])
 
                     } else {
 
-                        Variables.ArregloArchivo = append(Variables.ArregloArchivo, Variables.ArregloArchivo[ContadorAuxiliar] + Trim(ArregloAuxiliar[Con]))
+                        Variables.ArregloArchivo[ContadorAuxiliar] = Variables.ArregloArchivo[ContadorAuxiliar] + Trim(ArregloAuxiliar[Con])
 
                     }
-
                 }
 
                 if BuscarSeparador(Trim(ArregloAuxiliar[Con])) {
 
-                    Variables.ArregloArchivo = append(Variables.ArregloArchivo, Trim(strings.Replace(Trim(Variables.ArregloArchivo[ContadorAuxiliar]), "\\*", "", 1)) )
+                    Variables.ArregloArchivo[ContadorAuxiliar] = Trim(strings.Replace(Trim(Variables.ArregloArchivo[ContadorAuxiliar]), "\\*", "", 1))
                     Final = true
 
                 } else {

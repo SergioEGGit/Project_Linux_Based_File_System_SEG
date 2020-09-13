@@ -207,8 +207,8 @@
                 color.Success.Println("Reporte Generado Con Exito")
                 fmt.Println("")
 
-                GvizCommand = FileOutput + " &"
-                Command = exec.Command("/bin/bash", "-c", GvizCommand)
+                GvizCommand = FileOutput
+                Command = exec.Command("xdg-open", GvizCommand)
                 Command.Stdout = os.Stdout
                 AvisoError = Command.Run()
 

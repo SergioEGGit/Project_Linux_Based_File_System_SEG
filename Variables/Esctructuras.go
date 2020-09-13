@@ -135,7 +135,7 @@
 		NumeroBloquesTI int64
 		ArrayBloquesTI [4]int64
 		PTabalInodosTI int64
-		PropietarioTI int64
+		PropietarioTI [16]byte
 
 	}
 

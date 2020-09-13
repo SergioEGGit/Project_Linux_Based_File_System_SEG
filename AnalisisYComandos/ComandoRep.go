@@ -389,6 +389,22 @@
 
 				Reportes.ReporteBitmapAVD(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
 
+			} else if Variables.MapComandos["nombre"] == "bm_detdir" {
+
+				Reportes.ReporteBitmapDD(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+			} else if Variables.MapComandos["nombre"] == "bm_inode" {
+
+				Reportes.ReporteBitmapTI(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+			} else if Variables.MapComandos["nombre"] == "bm_block" {
+
+				Reportes.ReporteBitmapBQ(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+			} else if Variables.MapComandos["nombre"] == "tree_complete" {
+
+				Reportes.ReporteArbolCompletoAVD(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
 		    } else {
 
 				color.HEX("#de4843", false).Println("No Existe El Reporte Indicado")

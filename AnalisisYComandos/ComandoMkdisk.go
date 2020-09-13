@@ -147,6 +147,7 @@
 
 						if len(ArregloParametros) > 1 {
 
+							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 
 							Name = Metodos.ContineCaractereProhibidos(ArregloParametros[1])

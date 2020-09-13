@@ -101,6 +101,12 @@
 
 	func ComandoUnMount() {
 
+		//Variables
+		var Bandera bool
+
+		//Asignacion
+		Bandera = false
+
 		//Desmontar Particiones
 		for Id := range Variables.MapComandos {
 
@@ -109,13 +115,25 @@
 				if strings.EqualFold(Metodos.Trim(Variables.MapComandos[Id]), Metodos.Trim(Variables.ArregloParticionesMontadas[Contador].IdentificadorMount)) {
 
 					Variables.ArregloParticionesMontadas = append(Variables.ArregloParticionesMontadas[:Contador], Variables.ArregloParticionesMontadas[Contador+1:]...)
+					Bandera = true
 
 				}
 			}
 
 		}
 
-		color.Success.Println("Particion/es Desmontadas Con Exito")
-		fmt.Println("")
+		if Bandera {
+
+			color.Success.Println("Particion/es Desmontadas Con Exito")
+			fmt.Println("")
+
+		} else {
+
+			color.HEX("#de4843", false).Println("No Existe El Id Indicado")
+			fmt.Println("")
+
+		}
+
+
 
 	}

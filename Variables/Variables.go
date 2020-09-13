@@ -11,6 +11,6 @@
     var CreeDirectorio bool
     var MapComandos map[string]string
     var ArregloComandos []string
-    var ArregloArchivo []string
+    var ArregloArchivo [200]string
     var MapIdentificador map[string]IDEstructura
     var ArregloParticionesMontadas []MountEstructura
