@@ -17,28 +17,29 @@
 	func VerificarComandoRep() {
 
 		//Variables
-		var Nombre bool
+		var name bool
 		var Path bool
 		var Id bool
 		var Ruta bool
 		var ParametroExtra bool
 		var ArregloParametros []string
-		var ContadorNombre int
+		var Contadorname int
 		var ContadorPath int
 		var ContadorId int
 		var ContadorRuta int
 
 		//Asignación
-		Nombre = false
+		name = false
 		Path = false
 		Id = false
 		Ruta = true
 		ParametroExtra = false
-		ContadorNombre = 0
+		Contadorname = 0
 		ContadorPath = 0
 		ContadorId = 0
 		ContadorRuta = 0
 		Variables.MapComandos = make(map[string]string)
+		Variables.MapComandos["ruta"] = "none"
 
 		//Verificación De Parametros
 		if len(Variables.ArregloComandos) > 1 {
@@ -54,27 +55,27 @@
 
 				switch ArregloParametros[0] {
 
-				case "nombre":
+				case "name":
 
-				  if ContadorNombre == 0 {
+				  if Contadorname == 0 {
 
 						if len(ArregloParametros) > 1 {
 
 							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
-							Variables.MapComandos["nombre"] = Metodos.Trim(ArregloParametros[1])
-							Nombre = true
+							Variables.MapComandos["name"] = Metodos.Trim(ArregloParametros[1])
+							name = true
 
-							ContadorNombre++
+							Contadorname++
 
 						} else {
 
-							Nombre = false
+							name = false
 
 						}
 
 					} else {
 
-						ContadorNombre++
+						Contadorname++
 
 					}
 
@@ -135,6 +136,8 @@
 
 						if len(ArregloParametros) > 1 {
 
+							ArregloParametros[1] = Metodos.QuitarComillas(ArregloParametros[1])
+							ArregloParametros[1] = Metodos.Trim(ArregloParametros[1])
 							Variables.MapComandos["ruta"] = Metodos.Trim(ArregloParametros[1])
 
 							ContadorRuta++
@@ -160,7 +163,7 @@
 		}
 
 
-		if Path && Id && Nombre && Ruta && !ParametroExtra && ContadorNombre == 1 && ContadorPath == 1 && (ContadorRuta == 1 || ContadorRuta == 0) && ContadorId == 1 {
+		if Path && Id && name && Ruta && !ParametroExtra && Contadorname == 1 && ContadorPath == 1 && (ContadorRuta == 1 || ContadorRuta == 0) && ContadorId == 1 {
 
 			VerificarNombreReporte()
 
@@ -171,7 +174,7 @@
 				color.HEX("#de4843", false).Println("Parametro Especificado No Valido")
 				color.HEX("#de4843", false).Println("Parametros Validos: ")
 				color.HEX("#de4843", false).Println("1). -path->    (Obligatorio)")
-				color.HEX("#de4843", false).Println( "2). -nombre->    (Obligatorio)")
+				color.HEX("#de4843", false).Println( "2). -name->    (Obligatorio)")
 				color.HEX("#de4843", false).Println( "3). -id->    (Obligatorio)")
 				color.HEX("#de4843", false).Println( "4). -ruta->    (Opcional)")
 				fmt.Println("")
@@ -186,9 +189,9 @@
 
 			}
 
-			if !Nombre {
+			if !name {
 
-				color.HEX("#de4843", false).Println("No Se Encuentra El Parametro -nombre-> o")
+				color.HEX("#de4843", false).Println("No Se Encuentra El Parametro -name-> o")
 				color.HEX("#de4843", false).Println("Existe Error En La Sintaxis")
 				fmt.Println("")
 			}
@@ -201,7 +204,7 @@
 
 			}
 
-			if ContadorNombre > 1 || ContadorPath > 1 || ContadorRuta > 1 || ContadorId > 1 {
+			if Contadorname > 1 || ContadorPath > 1 || ContadorRuta > 1 || ContadorId > 1 {
 
 				color.HEX("#de4843", false).Println("Existen Demasiados Parametros")
 				fmt.Println("")
@@ -235,7 +238,7 @@
 
 			}
 
-			//fmt.Println("Size: ", EBRAuxiliar.SizeEBR, "Inicio: ", EBRAuxiliar.InicioEBR, "Siguiente: ", EBRAuxiliar.SiguienteEBR, "Nombre: ", string(EBRAuxiliar.NameEBR[:]))
+			//fmt.Println("Size: ", EBRAuxiliar.SizeEBR, "Inicio: ", EBRAuxiliar.InicioEBR, "Siguiente: ", EBRAuxiliar.SiguienteEBR, "name: ", string(EBRAuxiliar.NameEBR[:]))
 
 			ArregloEBR = append(ArregloEBR, EBRAuxiliar)
 			InicioListaExtendida = ArregloEBR[Contador].SiguienteEBR
@@ -287,7 +290,7 @@
 
 		if Bandera {
 
-			if Variables.MapComandos["nombre"] == "mbr" {
+			if Variables.MapComandos["name"] == "mbr" {
 
 				Bandera = false
 
@@ -334,7 +337,7 @@
 
 				}
 
-			} else if Variables.MapComandos["nombre"] == "disk" {
+			} else if Variables.MapComandos["name"] == "disk" {
 
 				Bandera = false
 
@@ -381,31 +384,112 @@
 
 				}
 
-			} else if Variables.MapComandos["nombre"] == "sb" {
+			} else if Variables.MapComandos["name"] == "sb" {
 
 				Reportes.ReporteSuperBoot(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
 
-			} else if Variables.MapComandos["nombre"] == "bm_arbdir" {
+			} else if Variables.MapComandos["name"] == "bm_arbdir" {
 
 				Reportes.ReporteBitmapAVD(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
 
-			} else if Variables.MapComandos["nombre"] == "bm_detdir" {
+			} else if Variables.MapComandos["name"] == "bm_detdir" {
 
 				Reportes.ReporteBitmapDD(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
 
-			} else if Variables.MapComandos["nombre"] == "bm_inode" {
+			} else if Variables.MapComandos["name"] == "bm_inode" {
 
 				Reportes.ReporteBitmapTI(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
 
-			} else if Variables.MapComandos["nombre"] == "bm_block" {
+			} else if Variables.MapComandos["name"] == "bm_block" {
 
 				Reportes.ReporteBitmapBQ(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
 
-			} else if Variables.MapComandos["nombre"] == "tree_complete" {
+			} else if Variables.MapComandos["name"] == "bitacora" {
+
+				Reportes.ReporteBitacora(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+			} else if Variables.MapComandos["name"] == "directorio" {
+
+				Reportes.ReporteDirectorio(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+			} else if Variables.MapComandos["name"] == "tree_file" {
+
+				if Variables.MapComandos["ruta"] == "none" {
+
+					color.HEX("#de4843", false).Println("Debe Indicar Un Archivo Para Generar El Reporte")
+					fmt.Println("")
+
+				} else if Variables.MapComandos["ruta"] == "/users.txt" {
+
+					Reportes.ReporteTreeFile(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+				} else if Variables.MapComandos["ruta"] == "" {
+
+					color.HEX("#de4843", false).Println("Debe De Indicar Un Archivo Valido")
+					fmt.Println("")
+
+				} else {
+
+					color.HEX("#de4843", false).Println("No Existe El Archivo Indicado")
+					fmt.Println("")
+
+				}
+
+			} else if Variables.MapComandos["name"] == "tree_directorio" {
+
+				if Variables.MapComandos["ruta"] == "none" {
+
+					color.HEX("#de4843", false).Println("Debe Indicar Un Directorio/os Para Generar El Reporte")
+					fmt.Println("")
+
+				} else if Variables.MapComandos["ruta"] == "/" {
+
+					Reportes.ReporteTreeDirectorio(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
+
+				} else if Variables.MapComandos["ruta"] == "" {
+
+					color.HEX("#de4843", false).Println("Debe De Indicar Un Directorio/os Valido")
+					fmt.Println("")
+
+				} else {
+
+					color.HEX("#de4843", false).Println("No Existe La Ruta Indicada")
+					fmt.Println("")
+
+				}
+
+			} else if Variables.MapComandos["name"] == "tree_complete" {
 
 				Reportes.ReporteArbolCompletoAVD(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]))
 
-		    } else {
+		    } else if Variables.MapComandos["name"] == "ls" {
+
+				if Variables.MapComandos["ruta"] == "none" {
+
+					color.HEX("#de4843", false).Println("Debe Indicar Un Directorio/os o Archivos Para Generar El Reporte")
+					fmt.Println("")
+
+				} else if Variables.MapComandos["ruta"] == "/" {
+
+					Reportes.ReporteLS(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]), 0)
+
+				} else if Variables.MapComandos["ruta"] == "/users.txt" {
+
+					Reportes.ReporteLS(ParticionMontada, Metodos.Trim(Variables.MapComandos["path"]), 1)
+
+				} else if Variables.MapComandos["ruta"] == "" {
+
+					color.HEX("#de4843", false).Println("Debe De Indicar Un Directorio/os O Archivos Valido")
+					fmt.Println("")
+
+				} else {
+
+					color.HEX("#de4843", false).Println("No Existe La Ruta Indicada")
+					fmt.Println("")
+
+				}
+
+			} else {
 
 				color.HEX("#de4843", false).Println("No Existe El Reporte Indicado")
 				fmt.Println("")

@@ -972,6 +972,64 @@
 
 	}
 
+	func LeerArchivoBinarioBI(Ruta string, PosicionInicial int64) (Variables.BitacoraEstructura, bool) {
+
+		//Variables
+		var Archivo *os.File
+		var AvisoError error
+		var BIAuxiliar Variables.BitacoraEstructura
+		var SizeBI int
+		var ArregloBytes []byte
+		var Decodificador *bytes.Buffer
+
+		//Abrir El Archivo
+		Archivo, AvisoError = os.Open(Ruta)
+
+		//Catch Error
+		if AvisoError != nil {
+
+			color.HEX("#de4843", false).Println("Error Al Abrir El Archivo")
+			fmt.Println("")
+			return BIAuxiliar, false
+
+		} else {
+
+			//Estructura Auxiliar
+			BIAuxiliar = Variables.BitacoraEstructura{}
+			BIDireccion := &BIAuxiliar
+
+			//Obtener Size SB
+			SizeBI = int(unsafe.Sizeof(Variables.BitacoraEstructura{}))
+
+			//Mover Puntero
+			_, _ = Archivo.Seek(PosicionInicial, 0)
+
+			//Obtener Arreglo De Bytes
+			ArregloBytes = LeerArchivoBinario(Archivo, SizeBI)
+
+			//Decodificar Binario
+			Decodificador = bytes.NewBuffer(ArregloBytes)
+
+			AvisoError = binary.Read(Decodificador, binary.BigEndian, BIDireccion)
+
+			if AvisoError != nil {
+
+				color.HEX("#de4843", false).Println("Error Al Leer El Archivo")
+				fmt.Println("")
+				Archivo.Close()
+				return BIAuxiliar, false
+
+			} else {
+
+				Archivo.Close()
+				return BIAuxiliar, true
+
+			}
+
+		}
+
+	}
+
 	func LeerArchivoBinarioBitmapAVD(Ruta string, PosicionInicial int64, Size int) ([]byte, bool) {
 
 		//Variables

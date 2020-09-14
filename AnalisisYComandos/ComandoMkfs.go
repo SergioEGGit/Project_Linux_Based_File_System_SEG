@@ -430,27 +430,20 @@
 		var SizeSuperBloque int64
 		var InicioParticion int64
 		var Bandera bool
-		var CeroBinario int8
-		var CeroByte *int8
-		var UnoBinario int8
-		var UnoByte *int8
 		var ArchivoDisco *os.File
 		var AvisoError error
 		var CadenaBinariaSuperBoot bytes.Buffer
-		var CadenaBinariaCero bytes.Buffer
-		var CadenaBinariaCeroDD bytes.Buffer
-		var CadenaBinariaCeroTI bytes.Buffer
-		var CadenaBinariaCeroBQ bytes.Buffer
-		var CadenaBinariaUno bytes.Buffer
-		var CadenaBinariaUnoDD bytes.Buffer
-		var CadenaBinariaUnoTI bytes.Buffer
-		var CadenaBinariaUnoBQ1 bytes.Buffer
-		var CadenaBinariaUnoBQ2 bytes.Buffer
 		var CadenaBinariaAVD bytes.Buffer
+		var CadenaBinariaAVDB bytes.Buffer
 		var CadenaBinariaDD bytes.Buffer
+		var CadenaBinariaDDB bytes.Buffer
 		var CadenaBinariaTI bytes.Buffer
+		var CadenaBinariaTIB bytes.Buffer
 		var CadenaBinariaBQ1 bytes.Buffer
 		var CadenaBinariaBQ2 bytes.Buffer
+		var CadenaBinariaBQB bytes.Buffer
+		var CadenaBinariaBI1 bytes.Buffer
+		var CadenaBinariaBI2 bytes.Buffer
 		var NombreArchivo []string
 		var SuperBoot Variables.SuperBloqueEstructura
 		var ParticionMontada Variables.MountEstructura
@@ -459,6 +452,9 @@
 		var TIAuxiliar Variables.TablaInodoEstructura
 		var BQ1Auxiliar Variables.BloquesEstructura
 		var BQ2Auxiliar Variables.BloquesEstructura
+		var BI1Auxiliar Variables.BitacoraEstructura
+		var BI2Auxiliar Variables.BitacoraEstructura
+		var ArregloBytes []byte
 
 		//Asignacion
 		Archivo = ""
@@ -480,6 +476,9 @@
 		TIAuxiliar = Variables.TablaInodoEstructura{}
 		BQ1Auxiliar = Variables.BloquesEstructura{}
 		BQ2Auxiliar = Variables.BloquesEstructura{}
+		BI1Auxiliar = Variables.BitacoraEstructura{}
+		BI2Auxiliar = Variables.BitacoraEstructura{}
+		ArregloBytes = make([]byte, 0)
 
 		//Verificar Particon Montada
 		for Contador := 0; Contador < len(Variables.ArregloParticionesMontadas); Contador++ {
@@ -598,13 +597,6 @@
 
 				// Escribir Bitmap AVD
 
-				//Asignación
-				CeroBinario = 0
-				CeroByte = &CeroBinario
-
-				UnoBinario = 1
-				UnoByte = &UnoBinario
-
 				//Mover A Posicion Final
 				_, _ = ArchivoDisco.Seek(ApuntadorBitmapAVD, 0)
 
@@ -612,24 +604,31 @@
 
 					if Contador == 0 {
 
-						_ = binary.Write(&CadenaBinariaUno, binary.BigEndian, UnoByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaUno.Bytes())
+						ArregloBytes = append(ArregloBytes, 1)
 
 					} else {
 
-						_ = binary.Write(&CadenaBinariaCero, binary.BigEndian, CeroByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaCero.Bytes())
+						ArregloBytes = append(ArregloBytes, 0)
 
 					}
 
 				}
 
+				_ = binary.Write(&CadenaBinariaAVDB, binary.BigEndian, ArregloBytes)
+				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaAVDB.Bytes())
+
 				// Escribir AVD Root
+
+				//Feaha Actual
+				FechaActual = time.Now()
+
 				// Rellenar AVD
 				copy(AVDAuxiliar.FechaCreacionAVD[:], FechaActual.String())
 				copy(AVDAuxiliar.NombreDirectorioAVD[:], "/")
 				AVDAuxiliar.PDetalleDirectorioAVD = SuperBoot.PDetalleSuperBloque
 				copy(AVDAuxiliar.PropietarioAVD[:], "root")
+				copy(AVDAuxiliar.GrupoAVD[:], "root")
+				AVDAuxiliar.PermisosAVD = 777
 
 				// Mover Puntero
 				_, _ = ArchivoDisco.Seek(SuperBoot.PArbolSuperBloque + (0 * SizeArbolDirectorio), 0)
@@ -644,33 +643,33 @@
 
 				// Escribir Bitmap DD
 
-				//Asignación
-				CeroBinario = 0
-				CeroByte = &CeroBinario
-
-				UnoBinario = 1
-				UnoByte = &UnoBinario
-
 				//Mover A Posicion Final
 				_, _ = ArchivoDisco.Seek(ApuntadorBitmapDD, 0)
+
+				ArregloBytes = make([]byte, 0)
 
 				for Contador := 0; Contador < int(NumeroEstructuras); Contador++ {
 
 					if Contador == 0 {
 
-						_ = binary.Write(&CadenaBinariaUnoDD, binary.BigEndian, UnoByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaUnoDD.Bytes())
+						ArregloBytes = append(ArregloBytes, 1)
 
 					} else {
 
-						_ = binary.Write(&CadenaBinariaCeroDD, binary.BigEndian, CeroByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaCeroDD.Bytes())
+						ArregloBytes = append(ArregloBytes, 0)
 
 					}
 
 				}
 
+				_ = binary.Write(&CadenaBinariaDDB, binary.BigEndian, ArregloBytes)
+				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaDDB.Bytes())
+
 				// Escribir DD
+
+				//Feaha Actual
+				FechaActual = time.Now()
+
 				// Rellenar DD
 				copy(DDAuxiliar.ArrayArchivosDD[0].NombreArchivoDDInformacion[:], "users.txt")
 				copy(DDAuxiliar.ArrayArchivosDD[0].FechaCreacionArchivoDDInformacion[:], FechaActual.String())
@@ -692,31 +691,27 @@
 
 				// Escribir Bitmap Inodos
 
-				//Asignación
-				CeroBinario = 0
-				CeroByte = &CeroBinario
-
-				UnoBinario = 1
-				UnoByte = &UnoBinario
-
 				//Mover A Posicion Final
 				_, _ = ArchivoDisco.Seek(ApuntadorBitmapTI, 0)
+
+				ArregloBytes = make([]byte, 0)
 
 				for Contador := 0; Contador < int(5 * NumeroEstructuras); Contador++ {
 
 					if Contador == 0 {
 
-						_ = binary.Write(&CadenaBinariaUnoTI, binary.BigEndian, UnoByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaUnoTI.Bytes())
+						ArregloBytes = append(ArregloBytes, 1)
 
 					} else {
 
-						_ = binary.Write(&CadenaBinariaCeroTI, binary.BigEndian, CeroByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaCeroTI.Bytes())
+						ArregloBytes = append(ArregloBytes, 0)
 
 					}
 
 				}
+
+				_ = binary.Write(&CadenaBinariaTIB, binary.BigEndian, ArregloBytes)
+				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaTIB.Bytes())
 
 				// Escribir TI
 				// Rellenar TI
@@ -727,6 +722,8 @@
 				TIAuxiliar.ArrayBloquesTI[1] = ApuntadorBQ + (1 * SizeBQ)
 				TIAuxiliar.PTabalInodosTI = 0
 				copy(TIAuxiliar.PropietarioTI[:], "root")
+				copy(TIAuxiliar.GrupoTI[:], "root")
+				TIAuxiliar.PermisosTI = 770
 
 				// Mover Puntero
 				_, _ = ArchivoDisco.Seek(SuperBoot.PTablaSuperBloque + (0 * SizeTablaInodos), 0)
@@ -740,40 +737,31 @@
 
 				// Escribir Bitmap Bloques
 
-				//Asignación
-				CeroBinario = 0
-				CeroByte = &CeroBinario
-
-				UnoBinario = 1
-				UnoByte = &UnoBinario
-
 				//Mover A Posicion Final
 				_, _ = ArchivoDisco.Seek(ApuntadorBitmapBQ, 0)
 
+				ArregloBytes = make([]byte, 0)
+
 				for Contador := 0; Contador < int(4 * (5 * NumeroEstructuras)); Contador++ {
 
-					if Contador == 0 {
+					if Contador == 0 || Contador == 1 {
 
-						_ = binary.Write(&CadenaBinariaUnoBQ1, binary.BigEndian, UnoByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaUnoBQ1.Bytes())
-
-					} else if Contador == 1 {
-
-						_ = binary.Write(&CadenaBinariaUnoBQ2, binary.BigEndian, UnoByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaUnoBQ2.Bytes())
+						ArregloBytes = append(ArregloBytes, 1)
 
 					} else {
 
-						_ = binary.Write(&CadenaBinariaCeroBQ, binary.BigEndian, CeroByte)
-						Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaCeroBQ.Bytes())
+						ArregloBytes = append(ArregloBytes, 0)
 
 					}
 
 				}
 
+				_ = binary.Write(&CadenaBinariaBQB, binary.BigEndian, ArregloBytes)
+				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaBQB.Bytes())
+
 				// Escribir BQ 1
 				// Rellenar BQ 1
-				copy(BQ1Auxiliar.InformacionBQ[:], "1,G,root\n1,U,root,root,2")
+				copy(BQ1Auxiliar.InformacionBQ[:], "1,G,root\\n1,U,root,root,2")
 
 
 				// Mover Puntero
@@ -789,7 +777,7 @@
 
 				// Escribir BQ 2
 				// Rellenar BQ 2
-				copy(BQ2Auxiliar.InformacionBQ[:], "018016280\n")
+				copy(BQ2Auxiliar.InformacionBQ[:], "01801628\\n")
 
 
 				// Mover Puntero
@@ -801,6 +789,52 @@
 				//Escribir Archivo
 				_ = binary.Write(&CadenaBinariaBQ2, binary.BigEndian, BQ2Direccion)
 				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaBQ2.Bytes())
+
+				// Escribir BI 1
+
+				//Feaha Actual
+				FechaActual = time.Now()
+
+				// Rellenar BI 1
+				copy(BI1Auxiliar.TipoOperacionBT[:], "(Mkdir)")
+				BI1Auxiliar.TipoArchivoDirectorioBT = 1
+				copy(BI1Auxiliar.NombreArchivoDirectorioBT[:], "/")
+				copy(BI1Auxiliar.ContenidoBT[:], "-")
+				copy(BI1Auxiliar.FechaTransaccionBT[:], FechaActual.String())
+
+
+				// Mover Puntero
+				_, _ = ArchivoDisco.Seek(SuperBoot.PLogSuperBloque + (0 * SizeBI), 0)
+
+				//Asignación
+				BI1Direccion := &BI1Auxiliar
+
+				//Escribir Archivo
+				_ = binary.Write(&CadenaBinariaBI1, binary.BigEndian, BI1Direccion)
+				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaBI1.Bytes())
+
+
+				// Escribir BI 2
+
+				//Feaha Actual
+				FechaActual = time.Now()
+
+				// Rellenar BI 2
+				copy(BI2Auxiliar.TipoOperacionBT[:], "(Mkfile)")
+				BI2Auxiliar.TipoArchivoDirectorioBT = 0
+				copy(BI2Auxiliar.NombreArchivoDirectorioBT[:], "users.txt")
+				copy(BI2Auxiliar.ContenidoBT[:], "-")
+				copy(BI2Auxiliar.FechaTransaccionBT[:], FechaActual.String())
+
+				// Mover Puntero
+				_, _ = ArchivoDisco.Seek(SuperBoot.PLogSuperBloque + (1 * SizeBI), 0)
+
+				//Asignación
+				BI2Direccion := &BI2Auxiliar
+
+				//Escribir Archivo
+				_ = binary.Write(&CadenaBinariaBI2, binary.BigEndian, BI2Direccion)
+				Metodos.EscribirArchivoBinario(ArchivoDisco, CadenaBinariaBI2.Bytes())
 
 				_ = ArchivoDisco.Close()
 				

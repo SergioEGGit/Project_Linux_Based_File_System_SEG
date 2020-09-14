@@ -107,6 +107,8 @@
 		PDetalleDirectorioAVD int64
 		PArbolVirtualDirectorio int64
 		PropietarioAVD [16]byte
+		GrupoAVD [16]byte
+		PermisosAVD int64
 
 	}
 	
@@ -136,6 +138,8 @@
 		ArrayBloquesTI [4]int64
 		PTabalInodosTI int64
 		PropietarioTI [16]byte
+		GrupoTI [16]byte
+		PermisosTI int64
 
 	}
 

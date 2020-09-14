@@ -8,8 +8,10 @@
         "bufio"
         "fmt"
         "github.com/gookit/color"
+        "github.com/skratchdot/open-golang/open"
         "os"
         "os/exec"
+        "strings"
     )
 
 //-----------------------------------------Métodos-------------------------------------------------
@@ -207,10 +209,7 @@
                 color.Success.Println("Reporte Generado Con Exito")
                 fmt.Println("")
 
-                GvizCommand = FileOutput
-                Command = exec.Command("xdg-open", GvizCommand)
-                Command.Stdout = os.Stdout
-                AvisoError = Command.Run()
+                AvisoError = open.Start(strings.Trim(FileOutput, " "))
 
                 if AvisoError != nil {
 
