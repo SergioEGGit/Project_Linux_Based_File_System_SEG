@@ -1,0 +1,105 @@
+
+# Crear Disco De 5 mb
+
+mkdisk -path-> /home/sergio/Documentos/ -name-> Disco1.dsk -size-> 5
+
+# Crear Particion 
+
+fdisk -path-> /home/sergio/Documentos/Disco1.dsk -name-> Part1 -size-> 3 -unit-> m -type-> p 
+
+# Mount 
+
+mount -path-> /home/sergio/Documentos/Disco1.dsk -name-> Part1
+
+# Formateo Mkfs 
+
+mkfs -id-> vda1
+
+# Reportes
+
+# SuperBloque
+
+rep -path-> /home/sergio/Documentos/SB.png -name-> sb -id-> vda1
+
+pause
+
+# Bitmap AVD
+
+rep -path-> /home/sergio/Documentos/BitmapAVD.txt -name-> bm_arbdir -id-> vda1
+
+pause
+
+# Bitmap DD
+
+rep -path-> /home/sergio/Documentos/BitmapDD.txt -name-> bm_detdir -id-> vda1
+
+pause
+
+# Bitmap Inodo
+
+rep -path-> /home/sergio/Documentos/BitmapInodo.txt -name-> bm_inode -id-> vda1
+
+pause 
+
+# Bitmap Bloque
+
+rep -path-> /home/sergio/Documentos/BitmapBloque.txt -name-> bm_block -id-> vda1
+
+pause
+
+# Bitacora
+
+rep -path-> /home/sergio/Documentos/Bitacora.png -name-> bitacora -id-> vda1
+
+pause 
+
+# Directorio
+
+rep -path-> /home/sergio/Documentos/Directorio.png -name-> directorio -id-> vda1
+
+pause 
+
+# Tree File
+
+rep -path-> /home/sergio/Documentos/TreeFile.png -name-> tree_file -id-> vda1 -ruta-> "/users.txt"
+
+pause
+
+# Tree directorio
+
+rep -path-> /home/sergio/Documentos/TreeDirectorio.png -name-> tree_directorio -id-> vda1 -ruta-> "/"
+
+pause 
+
+# Tree Complete
+
+rep -path-> /home/sergio/Documentos/TreeComplete.png -name-> tree_complete -id-> vda1
+
+pause 
+
+# Ls Archivo
+
+rep -path-> /home/sergio/Documentos/Reporte.png -name-> ls -id-> vda1 -ruta-> "/users.txt"
+
+pause 
+
+# Ls Ruta
+
+rep -path-> /home/sergio/Documentos/Reporte.png -name-> ls -id-> vda1 -ruta-> "/"
+
+pause
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
